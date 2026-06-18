@@ -1,0 +1,2860 @@
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAG aur Agentic AI — Ek Senior Engineer Ki Nazar Se</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: { bg: '#0a0a1a', card: '#12122a', border: '#1e1e3a' },
+                        accent: '#6366f1',
+                        highlight: '#22d3ee',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        * { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; }
+        code, pre { font-family: 'JetBrains Mono', monospace; }
+        .dark body { background: #0a0a1a; color: #e2e8f0; }
+        
+        /* Progress bar */
+        #progress-bar { position: fixed; top: 0; left: 0; height: 3px; background: linear-gradient(90deg, #6366f1, #22d3ee); z-index: 9999; transition: width 0.1s; }
+        
+        /* Card hover effects */
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 0 30px rgba(99, 102, 241, 0.2); }
+        
+        /* Fade in animation */
+        .fade-section { opacity: 0; transform: translateY(30px); transition: all 0.6s ease; }
+        .fade-section.visible { opacity: 1; transform: translateY(0); }
+        
+        /* Code block styling */
+        .code-block { position: relative; border-radius: 12px; overflow: hidden; }
+        .code-block .copy-btn { position: absolute; top: 8px; right: 8px; padding: 4px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; background: #6366f1; color: white; border: none; opacity: 0.8; transition: opacity 0.2s; }
+        .code-block .copy-btn:hover { opacity: 1; }
+        
+        /* Mermaid dark theme */
+        .mermaid { background: transparent !important; }
+        .mermaid svg { max-width: 100%; height: auto; }
+        
+        /* Typing animation */
+        .typing-text { border-right: 2px solid #6366f1; animation: blink 1s infinite; }
+        @keyframes blink { 0%,50% { border-color: #6366f1; } 51%,100% { border-color: transparent; } }
+        
+        /* Glow effect */
+        .glow { box-shadow: 0 0 20px rgba(99, 102, 241, 0.3); }
+        .glow-cyan { box-shadow: 0 0 20px rgba(34, 211, 238, 0.3); }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0a0a1a; }
+        ::-webkit-scrollbar-thumb { background: #6366f1; border-radius: 4px; }
+        
+        /* Light mode overrides */
+        .light body, .light { background: #f8fafc !important; color: #1e293b !important; }
+        .light .dark-card { background: #ffffff !important; border: 1px solid #e2e8f0 !important; }
+        .light .dark-text { color: #1e293b !important; }
+        .light .dark-nav { background: rgba(255,255,255,0.9) !important; border-bottom: 1px solid #e2e8f0 !important; }
+        .light pre[class*="language-"] { background: #1e293b !important; }
+        
+        /* Nav active */
+        .nav-link { position: relative; }
+        .nav-link::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background: #6366f1; transition: width 0.3s; }
+        .nav-link:hover::after { width: 100%; }
+    </style>
+</head>
+<body class="bg-dark-bg text-gray-200 min-h-screen">
+
+    <!-- Progress Bar -->
+    <div id="progress-bar" style="width: 0%"></div>
+
+    <!-- Navbar -->
+    <nav class="dark-nav fixed top-0 w-full z-50 bg-dark-bg/90 backdrop-blur-xl border-b border-dark-border">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-2">
+                    <span class="text-2xl font-bold bg-gradient-to-r from-accent to-highlight bg-clip-text text-transparent">RAG & AI</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="#hero" class="nav-link text-sm font-medium hover:text-accent transition">Home</a>
+                    <a href="#rag-fundamentals" class="nav-link text-sm font-medium hover:text-accent transition">RAG Deep Dive</a>
+                    <a href="#advanced-rag" class="nav-link text-sm font-medium hover:text-accent transition">Advanced RAG</a>
+                    <a href="#agentic-ai" class="nav-link text-sm font-medium hover:text-accent transition">Agentic AI</a>
+                    <a href="#langgraph" class="nav-link text-sm font-medium hover:text-accent transition">LangGraph</a>
+                    <a href="#cheatsheet" class="nav-link text-sm font-medium hover:text-accent transition">Cheatsheet</a>
+                    <button id="theme-toggle" class="p-2 rounded-lg bg-dark-card border border-dark-border hover:border-accent transition">
+                        <span id="theme-icon">🌙</span>
+                    </button>
+                </div>
+                <button id="mobile-menu-btn" class="md:hidden p-2 rounded-lg bg-dark-card">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-dark-bg border-t border-dark-border">
+            <div class="px-4 py-3 space-y-2">
+                <a href="#hero" class="block py-2 text-sm hover:text-accent">Home</a>
+                <a href="#rag-fundamentals" class="block py-2 text-sm hover:text-accent">RAG Deep Dive</a>
+                <a href="#advanced-rag" class="block py-2 text-sm hover:text-accent">Advanced RAG</a>
+                <a href="#agentic-ai" class="block py-2 text-sm hover:text-accent">Agentic AI</a>
+                <a href="#langgraph" class="block py-2 text-sm hover:text-accent">LangGraph</a>
+                <a href="#cheatsheet" class="block py-2 text-sm hover:text-accent">Cheatsheet</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- SECTION 1: HERO -->
+    <section id="hero" class="min-h-screen flex items-center justify-center relative overflow-hidden pt-16">
+        <div class="absolute inset-0 bg-gradient-to-br from-accent/5 via-transparent to-highlight/5"></div>
+        <div class="absolute top-20 left-10 w-72 h-72 bg-accent/10 rounded-full blur-3xl animate-pulse"></div>
+        <div class="absolute bottom-20 right-10 w-96 h-96 bg-highlight/10 rounded-full blur-3xl animate-pulse"></div>
+        
+        <div class="relative z-10 text-center px-4 max-w-5xl mx-auto">
+            <div class="inline-block px-4 py-2 rounded-full bg-accent/10 border border-accent/30 text-accent text-sm font-medium mb-6 animate__animated animate__fadeInDown">
+                🚀 Senior Engineer's Production Guide
+            </div>
+            <h1 class="text-4xl sm:text-5xl md:text-7xl font-black mb-6 leading-tight">
+                <span class="bg-gradient-to-r from-accent via-purple-400 to-highlight bg-clip-text text-transparent">RAG aur Agentic AI</span>
+                <br>
+                <span class="text-gray-300 text-3xl sm:text-4xl md:text-5xl">Ek Senior Engineer Ki Nazar Se 🔥</span>
+            </h1>
+            <p class="text-lg sm:text-xl text-gray-400 max-w-3xl mx-auto mb-8 leading-relaxed">
+                Yeh guide ek senior RAG engineer ne likhi hai jo 5 saal se production systems bana raha hai. 
+                Yahan pe textbook theory nahi milegi — real engineering milegi. Jaise ek senior apne junior ko chai pe samjhata hai, 
+                waise hi har concept ko deeply explain kiya hai with code, diagrams, aur real-world analogies.
+            </p>
+            <div class="h-8 mb-8">
+                <span id="typing-text" class="typing-text text-highlight text-lg font-medium pr-1"></span>
+            </div>
+            <div class="flex flex-wrap justify-center gap-4">
+                <a href="#rag-fundamentals" class="px-8 py-3 bg-accent hover:bg-accent/80 rounded-xl font-semibold transition transform hover:scale-105">
+                    Start Learning →
+                </a>
+                <a href="#cheatsheet" class="px-8 py-3 bg-dark-card border border-dark-border hover:border-accent rounded-xl font-semibold transition transform hover:scale-105">
+                    Quick Cheatsheet
+                </a>
+            </div>
+            
+            <div class="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto">
+                <div class="p-4 rounded-xl bg-dark-card border border-dark-border text-center">
+                    <div class="text-2xl font-bold text-accent">6+</div>
+                    <div class="text-xs text-gray-400">Major Sections</div>
+                </div>
+                <div class="p-4 rounded-xl bg-dark-card border border-dark-border text-center">
+                    <div class="text-2xl font-bold text-highlight">20+</div>
+                    <div class="text-xs text-gray-400">Code Examples</div>
+                </div>
+                <div class="p-4 rounded-xl bg-dark-card border border-dark-border text-center">
+                    <div class="text-2xl font-bold text-purple-400">15+</div>
+                    <div class="text-xs text-gray-400">Diagrams</div>
+                </div>
+                <div class="p-4 rounded-xl bg-dark-card border border-dark-border text-center">
+                    <div class="text-2xl font-bold text-amber-400">100%</div>
+                    <div class="text-xs text-gray-400">Hinglish</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 2: RAG FUNDAMENTALS -->
+    <section id="rag-fundamentals" class="py-20 px-4">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16 fade-section">
+                <h2 class="text-4xl md:text-5xl font-bold mb-4">
+                    <span class="bg-gradient-to-r from-accent to-highlight bg-clip-text text-transparent">RAG Fundamentals</span>
+                </h2>
+                <p class="text-gray-400 text-lg">Deep Dive — Basics se Production Tak</p>
+            </div>
+
+            <!-- 2.1 RAG Kya Hai -->
+            <div class="fade-section mb-16">
+                <div class="dark-card bg-dark-card rounded-2xl border border-dark-border p-8 card-hover">
+                    <div class="flex items-center gap-3 mb-6">
+                        <span class="text-3xl">📚</span>
+                        <h3 class="text-2xl md:text-3xl font-bold">2.1 RAG Kya Hai — Poori Kahani</h3>
+                    </div>
+                    
+                    <div class="bg-accent/10 border border-accent/30 rounded-xl p-4 mb-6">
+                        <p class="text-accent font-semibold">🧠 Ek senior engineer ki taraf se —</p>
+                        <p class="text-gray-300 mt-2">"Dekh bhai, main 5 saal se production RAG systems bana raha hoon. Sabse badi galti jo log karte hain woh yeh hai ki woh RAG ko ek magic black box samajhte hain. RAG ek engineering pattern hai — agar tune iska har component sahi se samjha, toh tu production-grade system bana sakta hai. Agar nahi samjha, toh tu chatbot banaayega jo kabhi kabhi sahi answer deta hai aur kabhi hallucinate karta hai."</p>
+                    </div>
+
+                    <div class="prose prose-invert max-w-none space-y-4 text-gray-300 leading-relaxed">
+                        <h4 class="text-xl font-semibold text-white mt-6">Problem Before RAG — Kyun Zaroori Hua?</h4>
+                        <p>Dekh, jab LLMs (Large Language Models) jaise GPT-4, Claude, Gemini aaye, toh lagta tha ki yeh sab kuch jaante hain. Lekin reality mein unki ek fundamental problem hai — <strong class="text-highlight">knowledge cutoff</strong>. ChatGPT ko train kiya gaya hai 2023 tak ke data pe. Toh agar tu pooche "meri company ka latest quarterly report kya kehta hai?" — toh woh hallucinate karega. Matlab confident hokar galat answer dega.</p>
+                        
+                        <p>Doosri problem — <strong class="text-highlight">private data</strong>. Teri company ke internal documents, policies, codebase — yeh sab LLM ke training data mein nahi hai. Toh LLM directly tera help nahi kar sakta in specific questions pe.</p>
+                        
+                        <p>Teesri problem — <strong class="text-highlight">hallucination</strong>. LLM bahut confidently galat information de deta hai. Medical, legal, financial domains mein yeh dangerous hai. Tu patient ko galat medicine suggest nahi kar sakta na?</p>
+
+                        <h4 class="text-xl font-semibold text-white mt-6">RAG Ka Idea — Simple Lekin Powerful</h4>
+                        <p><strong>RAG = Retrieval Augmented Generation</strong>. Isko samjhne ka sabse easy tarika hai exam analogy. </p>
+                        
+                        <p class="bg-dark-bg rounded-lg p-4 border-l-4 border-accent italic">
+                            "Tu exam mein open book le jaata hai — woh open book hai tera Vector DB. Exam paper hai user ki query. Tu book mein relevant pages dhundhta hai (retrieval), phir un pages ki madad se answer likhta hai (generation). Tu hallucinate nahi karega kyunki answer tere saamne hai book mein!"
+                        </p>
+
+                        <h4 class="text-xl font-semibold text-white mt-6">RAG Data Flow — Step by Step</h4>
+                        <p>Ab samjho ki RAG internally kaise kaam karta hai, har step detail mein:</p>
+                        
+                        <div class="grid md:grid-cols-2 gap-4 mt-4">
+                            <div class="bg-dark-bg rounded-lg p-4 border border-dark-border">
+                                <span class="text-accent font-bold">Step 1:</span> User query aati hai — "What is our company's leave policy?"
+                            </div>
+                            <div class="bg-dark-bg rounded-lg p-4 border border-dark-border">
+                                <span class="text-accent font-bold">Step 2:</span> Query ko embedding model se vector mein convert karte hain (1536 dimensional numbers)
+                            </div>
+                            <div class="bg-dark-bg rounded-lg p-4 border border-dark-border">
+                                <span class="text-accent font-bold">Step 3:</span> Vector DB mein similarity search — kaun se stored chunks is query ke sabse paas hain?
+                            </div>
+                            <div class="bg-dark-bg rounded-lg p-4 border border-dark-border">
+                                <span class="text-accent font-bold">Step 4:</span> Top-k relevant chunks retrieve hote hain (usually k=3 to 5)
+                            </div>
+                            <div class="bg-dark-bg rounded-lg p-4 border border-dark-border">
+                                <span class="text-accent font-bold">Step 5:</span> Retrieved chunks + original query = final prompt banate hain LLM ke liye
+                            </div>
+                            <div class="bg-dark-bg rounded-lg p-4 border border-dark-border">
+                                <span class="text-accent font-bold">Step 6:</span> LLM context mein answer generate karta hai — grounded, factual, no hallucination
+                            </div>
+                        </div>
+
+                        <h4 class="text-xl font-semibold text-white mt-6">Kyun Kaam Karta Hai?</h4>
+                        <p>RAG kaam karta hai kyunki LLM ko hallucinate karne ki zaroorat hi nahi padti. Answer already context mein hai. LLM ka kaam sirf yeh reh jaata hai ki relevant information ko user-friendly format mein present kare. Yeh Swiggy delivery boy jaisa hai — usko khana banana nahi aata, lekin woh sahi restaurant se sahi khana teri doorstep pe le aata hai. Vector DB = restaurant, LLM = delivery mechanism, User = hungry customer.</p>
+                    </div>
+
+                    <!-- Mermaid Diagram -->
+                    <div class="mt-8 bg-dark-bg rounded-xl p-6 border border-dark-border">
+                        <h4 class="text-lg font-semibold mb-4 text-gray-300">RAG Pipeline Flow</h4>
+                        <div class="mermaid">
+flowchart LR
+    A[/"👤 User Query"/] --> B["🔢 Embed Query"]
+    B --> C[("🗄️ Vector DB Search")]
+    C --> D["📄 Top-K Chunks Retrieved"]
+    D --> E["📝 Prompt = Query + Chunks"]
+    E --> F["🤖 LLM Generates Answer"]
+    F --> G[/"✅ Final Grounded Answer"/]
+                        </div>
+                    </div>
+
+                    <!-- Code Example -->
+                    <div class="mt-8">
+                        <h4 class="text-lg font-semibold mb-4 text-gray-300">Complete RAG Pipeline — Working Python Code</h4>
+                        <div class="code-block">
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            <pre><code class="language-python"># RAG Pipeline - End to End Implementation
+# Har line Hinglish mein commented hai tere liye
+
+# Step 1: Required imports
+from langchain_community.document_loaders import PyPDFLoader
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_openai import OpenAIEmbeddings, ChatOpenAI
+from langchain_community.vectorstores import Chroma
+from langchain.chains import RetrievalQA
+from langchain.prompts import PromptTemplate
+
+# Step 2: Document Loading
+# Apna PDF load karo — yeh tera knowledge base hai
+loader = PyPDFLoader("company_handbook.pdf")
+documents = loader.load()  # Saare pages load ho jaayenge
+
+# Step 3: Chunking — Document ko chhote pieces mein todo
+# Yeh sabse CRITICAL step hai — galat chunking = galat answers
+text_splitter = RecursiveCharacterTextSplitter(
+    chunk_size=1000,       # Har chunk mein max 1000 characters
+    chunk_overlap=200,     # 200 characters overlap — context preserve karne ke liye
+    length_function=len,   # Character count use karo
+    separators=["\n\n", "\n", " ", ""]  # Pehle paragraphs pe split, phir lines pe
+)
+chunks = text_splitter.split_documents(documents)
+print(f"Total chunks created: {len(chunks)}")  # Kitne chunks bane check karo
+
+# Step 4: Embeddings — Text ko numbers mein convert karo
+# OpenAI ka embedding model use kar rahe hain
+embeddings = OpenAIEmbeddings(
+    model="text-embedding-3-small",  # Cost effective + good quality
+    openai_api_key="your-api-key"
+)
+
+# Step 5: Vector Store — Embeddings ko store karo searchable format mein
+# Chroma local vector DB hai — dev ke liye perfect
+vectorstore = Chroma.from_documents(
+    documents=chunks,
+    embedding=embeddings,
+    persist_directory="./chroma_db",  # Disk pe save hoga — restart pe bhi rahega
+    collection_name="company_docs"
+)
+
+# Step 6: Retriever Setup — Search engine banao
+retriever = vectorstore.as_retriever(
+    search_type="similarity",  # Cosine similarity se search
+    search_kwargs={"k": 4}     # Top 4 relevant chunks laao
+)
+
+# Step 7: LLM Setup — Answer generator
+llm = ChatOpenAI(
+    model="gpt-4o-mini",       # Fast + cheap + good quality
+    temperature=0,              # Deterministic answers — no creativity needed
+    openai_api_key="your-api-key"
+)
+
+# Step 8: Custom Prompt — LLM ko instructions do
+prompt_template = """Tu ek helpful assistant hai. Neeche diye gaye context se answer de.
+Agar context mein answer nahi hai, toh bol "Mujhe is baare mein information nahi mili."
+Kabhi bhi apne se answer mat banaa (hallucinate mat kar).
+
+Context: {context}
+
+Question: {question}
+
+Answer:"""
+
+PROMPT = PromptTemplate(
+    template=prompt_template,
+    input_variables=["context", "question"]
+)
+
+# Step 9: Chain banao — Sab connect karo
+qa_chain = RetrievalQA.from_chain_type(
+    llm=llm,
+    chain_type="stuff",  # Saare chunks ek saath LLM ko do
+    retriever=retriever,
+    chain_type_kwargs={"prompt": PROMPT},
+    return_source_documents=True  # Source bhi return karo — transparency ke liye
+)
+
+# Step 10: Query karo!
+result = qa_chain.invoke({"query": "What is our company's leave policy?"})
+print("Answer:", result["result"])
+print("Sources:", [doc.metadata["source"] for doc in result["source_documents"]])</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- Common Mistakes -->
+                    <div class="mt-8 bg-red-500/10 border border-red-500/30 rounded-xl p-6">
+                        <h4 class="text-lg font-semibold text-red-400 mb-4">⚠️ Common Mistakes Jo Engineers Karte Hain</h4>
+                        <div class="space-y-4">
+                            <div class="flex gap-3">
+                                <span class="text-red-400 font-bold text-lg">1.</span>
+                                <div>
+                                    <p class="font-semibold text-white">Chunk size galat set karna</p>
+                                    <p class="text-gray-400 text-sm">Bahut bada chunk (5000+ chars) = irrelevant noise aayega. Bahut chhota chunk (100 chars) = context missing hoga. Sweet spot usually 500-1000 chars hai general RAG ke liye.</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-3">
+                                <span class="text-red-400 font-bold text-lg">2.</span>
+                                <div>
+                                    <p class="font-semibold text-white">Query aur Document embedding ke liye alag model use karna</p>
+                                    <p class="text-gray-400 text-sm">Agar documents text-embedding-3-small se embed kiye hain toh query bhi SAME model se embed karna padega. Different models ka vector space alag hota hai — match nahi karega!</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-3">
+                                <span class="text-red-400 font-bold text-lg">3.</span>
+                                <div>
+                                    <p class="font-semibold text-white">k value bahut kam rakhna</p>
+                                    <p class="text-gray-400 text-sm">k=1 rakh diya toh ek hi chunk milega — agar woh chunk partially relevant hai toh answer incomplete hoga. k=3 to 5 usually best hai. Bahut zyada (k=20) pe noise badh jaata hai.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2.2 Document Loading -->
+            <div class="fade-section mb-16">
+                <div class="dark-card bg-dark-card rounded-2xl border border-dark-border p-8 card-hover">
+                    <div class="flex items-center gap-3 mb-6">
+                        <span class="text-3xl">📄</span>
+                        <h3 class="text-2xl md:text-3xl font-bold">2.2 Document Loading — Production Mein Kaise Hota Hai</h3>
+                    </div>
+
+                    <div class="bg-accent/10 border border-accent/30 rounded-xl p-4 mb-6">
+                        <p class="text-accent font-semibold">🧠 Ek senior engineer ki taraf se —</p>
+                        <p class="text-gray-300 mt-2">"Production mein documents sirf PDFs nahi hote. Tera data Confluence pe hai, Google Drive pe hai, Notion pe hai, databases mein hai. Har source ke liye alag loader chahiye. Aur sabse important — METADATA. Agar tune source track nahi kiya toh debug karte waqt pagal ho jaayega. Mujhse pooch, main ho chuka hoon."</p>
+                    </div>
+
+                    <div class="prose prose-invert max-w-none space-y-4 text-gray-300 leading-relaxed">
+                        <p>Document loading RAG pipeline ka pehla step hai. Yahan pe tera goal hai — raw documents ko aise format mein laana jisse aage processing ho sake. LangChain mein har document type ke liye dedicated loaders hain. Key thing: <strong class="text-highlight">Metadata always add karo</strong> — source, page number, date, author. Baad mein jab user pooche "yeh answer kahan se aaya?" toh tu source cite kar sake.</p>
+                        
+                        <p>Production mein document loading ke challenges: encoding issues (UTF-8 vs others), large files (memory management), rate limits (APIs), aur incremental updates (naye documents add karna bina poora re-index kiye).</p>
+                    </div>
+
+                    <div class="mt-6">
+                        <div class="code-block">
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            <pre><code class="language-python"># Document Loading - Multiple Sources
+from langchain_community.document_loaders import (
+    PyPDFLoader,           # PDF files ke liye
+    WebBaseLoader,         # Websites scrape karne ke liye
+    CSVLoader,             # CSV/spreadsheet data ke liye
+    TextLoader,            # Plain text files
+    DirectoryLoader,       # Poora folder ek saath load karo
+    UnstructuredMarkdownLoader  # Markdown files
+)
+
+# === PDF Loading ===
+# Sabse common use case — company docs, research papers
+pdf_loader = PyPDFLoader("handbook.pdf")
+pdf_docs = pdf_loader.load()
+# Har page ek Document object hoga with metadata: {source, page}
+
+# === Web Page Loading ===
+# Blog posts, documentation pages scrape karo
+web_loader = WebBaseLoader("https://docs.company.com/policies")
+web_docs = web_loader.load()
+
+# === CSV Loading ===
+# Tabular data — FAQ databases, product catalogs
+csv_loader = CSVLoader(
+    file_path="faqs.csv",
+    csv_args={"delimiter": ","},
+    source_column="category"  # Metadata mein category add hoga
+)
+csv_docs = csv_loader.load()
+
+# === Directory Loading — Poora folder ek baar mein ===
+# Production mein yeh bahut useful hai
+dir_loader = DirectoryLoader(
+    "./documents/",
+    glob="**/*.pdf",        # Sirf PDFs load karo
+    loader_cls=PyPDFLoader,
+    show_progress=True      # Progress bar dikhao
+)
+all_docs = dir_loader.load()
+
+# === Custom Metadata Addition ===
+# Yeh CRITICAL hai production mein — source tracking ke liye
+from langchain.schema import Document
+import datetime
+
+enriched_docs = []
+for doc in all_docs:
+    doc.metadata.update({
+        "department": "engineering",
+        "indexed_at": str(datetime.datetime.now()),
+        "version": "2.1",
+        "confidentiality": "internal"
+    })
+    enriched_docs.append(doc)
+
+# Ab jab retrieval hoga, metadata bhi saath aayega
+# Isse tu filter bhi kar sakta hai — "sirf engineering docs se answer do"</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2.3 Chunking Strategy -->
+            <div class="fade-section mb-16">
+                <div class="dark-card bg-dark-card rounded-2xl border border-dark-border p-8 card-hover">
+                    <div class="flex items-center gap-3 mb-6">
+                        <span class="text-3xl">✂️</span>
+                        <h3 class="text-2xl md:text-3xl font-bold">2.3 Chunking Strategy — Yeh Galat Ho Toh Sab Kuch Galat</h3>
+                    </div>
+
+                    <div class="bg-accent/10 border border-accent/30 rounded-xl p-4 mb-6">
+                        <p class="text-accent font-semibold">🧠 Ek senior engineer ki taraf se —</p>
+                        <p class="text-gray-300 mt-2">"Main tujhe sach bata raha hoon — meri pehli RAG system mein 80% problems chunking ki wajah se thi. Embedding model achha tha, LLM achha tha, lekin chunks galat the toh answers bhi galat aa rahe the. Chunking ko tune sahi kar liya toh aadhi battle jeet gaya."</p>
+                    </div>
+
+                    <div class="prose prose-invert max-w-none space-y-4 text-gray-300 leading-relaxed">
+                        <h4 class="text-xl font-semibold text-white">Why Chunking Matters — Analogy Se Samjho</h4>
+                        <p>Soch tu ek kitaab ka summary banana chahta hai. Agar tu poori 500-page kitaab ek baar mein LLM ko de dega toh — pehle toh token limit mein fit nahi hogi, aur agar fit ho bhi gayi toh LLM confuse hoga itne text mein se relevant part dhundhne mein. Ab agar tu sirf ek line de — "Chapter 3 talks about..." — toh context hi nahi hoga, kuch samajh nahi aayega.</p>
+                        
+                        <p><strong class="text-highlight">Chunking = sahi size ke pages banana.</strong> Na bahut bade, na bahut chhote. Aur overlap isliye rakhte hain ki agar koi important sentence do chunks ke beech mein aata hai, toh woh dono mein preserved rahe.</p>
+                        
+                        <p>Zomato menu jaisa soch — agar tu poora menu ek image mein dikhaye (too big), toh customer confused. Agar sirf dish ka naam dikhaye bina description (too small), toh customer decide nahi kar paayega. Best = dish name + short description + price (right chunk size).</p>
+
+                        <h4 class="text-xl font-semibold text-white mt-8">RecursiveCharacterTextSplitter — Default Choice</h4>
+                        <p>Yeh sabse smart splitter hai LangChain mein. "Recursive" ka matlab hai ki yeh hierarchy mein split karta hai. Pehle try karega paragraphs pe split karna (\n\n), agar chunk size se bada ho toh single newline pe (\n), phir spaces pe, aur last mein character by character. Iska matlab — yeh natural boundaries respect karta hai. Sentence beech mein nahi katega jab tak absolutely zaroori na ho.</p>
+                        
+                        <div class="bg-dark-bg rounded-lg p-4 border border-dark-border my-4">
+                            <p class="text-sm"><strong class="text-accent">chunk_size=1000:</strong> Har chunk max 1000 characters ka hoga</p>
+                            <p class="text-sm mt-1"><strong class="text-accent">chunk_overlap=200:</strong> Consecutive chunks mein 200 chars common honge — yeh ensure karta hai ki boundary pe context lost na ho</p>
+                        </div>
+
+                        <h4 class="text-xl font-semibold text-white mt-6">CharacterTextSplitter — Simple But Risky</h4>
+                        <p>Yeh simplest hai — fixed size pe split kar deta hai. Problem: sentence beech mein cut ho sakta hai. "The company was founded in" | "1999 by Mr. Sharma" — ab pehla chunk incomplete hai. Use kab karo: jab tera document already well-structured ho (like log files, structured data).</p>
+
+                        <h4 class="text-xl font-semibold text-white mt-6">TokenTextSplitter — Token-Aware Splitting</h4>
+                        <p>Characters nahi, tokens count karta hai. Kyun better? Kyunki LLM token limits mein kaam karta hai, character limits mein nahi. "Hello" = 1 token, but "Pneumonoultramicroscopicsilicovolcanoconiosis" bhi mostly 3-4 tokens. Token budget tight ho toh yeh use karo — direct mapping hoti hai LLM ki capacity se.</p>
+
+                        <h4 class="text-xl font-semibold text-white mt-6">SemanticChunker — Advanced Meaning-Based</h4>
+                        <p>Yeh sabse intelligent hai — meaning ke basis pe split karta hai. Har sentence ko embed karta hai, phir dekhta hai ki consecutive sentences ka meaning kitna similar hai. Jahan pe meaning abruptly change hoti hai — wahan split karta hai. Three breakpoint types:</p>
+                        <ul class="list-disc list-inside space-y-2 ml-4">
+                            <li><strong class="text-highlight">Percentile:</strong> Top X% dissimilar points pe split — predictable number of chunks</li>
+                            <li><strong class="text-highlight">Standard Deviation:</strong> Mean se Z standard deviations door hone pe split — statistical approach</li>
+                            <li><strong class="text-highlight">Gradient:</strong> Sudden change in similarity — most natural breaks detect karta hai</li>
+                        </ul>
+                        <p class="mt-2">Kab use karo: Research papers, legal documents, jahan semantic coherence critical hai. Cost: slow hai kyunki har sentence embed karna padta hai.</p>
+                    </div>
+
+                    <div class="mt-6">
+                        <div class="code-block">
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            <pre><code class="language-python"># Chunking Strategies — Complete Comparison
+from langchain.text_splitter import (
+    RecursiveCharacterTextSplitter,
+    CharacterTextSplitter,
+    TokenTextSplitter
+)
+from langchain_experimental.text_splitter import SemanticChunker
+from langchain_openai import OpenAIEmbeddings
+
+sample_text = """RAG systems have revolutionized how we build AI applications.
+The key insight is that LLMs work much better when given relevant context.
+This context comes from a retrieval step that searches through your documents.
+
+The chunking strategy determines how documents are split into smaller pieces.
+Each piece becomes a searchable unit in your vector database.
+Choosing the right chunk size is critical for retrieval quality."""
+
+# === RecursiveCharacterTextSplitter — Best Default Choice ===
+recursive_splitter = RecursiveCharacterTextSplitter(
+    chunk_size=200,          # Max 200 chars per chunk
+    chunk_overlap=50,        # 50 chars overlap between chunks
+    separators=["\n\n", "\n", ". ", " ", ""],  # Split hierarchy
+    length_function=len
+)
+recursive_chunks = recursive_splitter.split_text(sample_text)
+print(f"Recursive: {len(recursive_chunks)} chunks")
+
+# === CharacterTextSplitter — Simple Fixed Size ===
+char_splitter = CharacterTextSplitter(
+    chunk_size=200,
+    chunk_overlap=50,
+    separator="\n"  # Sirf newline pe split karega
+)
+char_chunks = char_splitter.split_text(sample_text)
+print(f"Character: {len(char_chunks)} chunks")
+
+# === TokenTextSplitter — Token-Aware ===
+token_splitter = TokenTextSplitter(
+    chunk_size=50,           # 50 TOKENS (not characters!)
+    chunk_overlap=10         # 10 token overlap
+)
+token_chunks = token_splitter.split_text(sample_text)
+print(f"Token: {len(token_chunks)} chunks")
+
+# === SemanticChunker — Meaning-Based (Advanced) ===
+embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+semantic_splitter = SemanticChunker(
+    embeddings=embeddings,
+    breakpoint_threshold_type="percentile",  # or "standard_deviation", "gradient"
+    breakpoint_threshold_amount=70  # Top 70% dissimilarity = break
+)
+semantic_chunks = semantic_splitter.split_text(sample_text)
+print(f"Semantic: {len(semantic_chunks)} chunks")</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- Chunk Size Guide -->
+                    <div class="mt-8 overflow-x-auto">
+                        <h4 class="text-lg font-semibold mb-4 text-gray-300">Chunk Size Guide — Use Case Ke Hisaab Se</h4>
+                        <table class="w-full text-sm border border-dark-border rounded-lg overflow-hidden">
+                            <thead class="bg-accent/20">
+                                <tr>
+                                    <th class="p-3 text-left">Use Case</th>
+                                    <th class="p-3 text-left">Chunk Size (tokens)</th>
+                                    <th class="p-3 text-left">Overlap</th>
+                                    <th class="p-3 text-left">Why</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-t border-dark-border">
+                                    <td class="p-3">Factoid Q&A (dates, names)</td>
+                                    <td class="p-3 text-highlight font-mono">128-256</td>
+                                    <td class="p-3">20-30</td>
+                                    <td class="p-3">Small = precise retrieval for factual queries</td>
+                                </tr>
+                                <tr class="border-t border-dark-border bg-dark-bg/50">
+                                    <td class="p-3">General RAG (explain concepts)</td>
+                                    <td class="p-3 text-highlight font-mono">256-512</td>
+                                    <td class="p-3">50-100</td>
+                                    <td class="p-3">Medium = balance between context and precision</td>
+                                </tr>
+                                <tr class="border-t border-dark-border">
+                                    <td class="p-3">Complex Analysis (compare docs)</td>
+                                    <td class="p-3 text-highlight font-mono">512-1024</td>
+                                    <td class="p-3">100-200</td>
+                                    <td class="p-3">Large = more context for complex reasoning</td>
+                                </tr>
+                                <tr class="border-t border-dark-border bg-dark-bg/50">
+                                    <td class="p-3">Code Documentation</td>
+                                    <td class="p-3 text-highlight font-mono">256-512</td>
+                                    <td class="p-3">50</td>
+                                    <td class="p-3">Function-level chunks work best for code</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Chart for comparison -->
+                    <div class="mt-8 bg-dark-bg rounded-xl p-6 border border-dark-border">
+                        <h4 class="text-lg font-semibold mb-4 text-gray-300">Chunking Strategy Comparison</h4>
+                        <canvas id="chunkingChart" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2.4 Embeddings -->
+            <div class="fade-section mb-16">
+                <div class="dark-card bg-dark-card rounded-2xl border border-dark-border p-8 card-hover">
+                    <div class="flex items-center gap-3 mb-6">
+                        <span class="text-3xl">🔢</span>
+                        <h3 class="text-2xl md:text-3xl font-bold">2.4 Embeddings — Numbers Mein Meaning</h3>
+                    </div>
+
+                    <div class="bg-accent/10 border border-accent/30 rounded-xl p-4 mb-6">
+                        <p class="text-accent font-semibold">🧠 Ek senior engineer ki taraf se —</p>
+                        <p class="text-gray-300 mt-2">"Embeddings samajhna RAG ki foundation hai. Jab tak tu yeh nahi samjhega ki text kaise numbers mein convert hota hai aur similar text ke numbers kyun paas hote hain, tab tak tu RAG debug nahi kar paayega. Main ne ek baar 2 hafte lagaye yeh debug karne mein ki answers galat kyun aa rahe — problem thi ki embedding model change kar diya tha bina re-indexing ke!"</p>
+                    </div>
+
+                    <div class="prose prose-invert max-w-none space-y-4 text-gray-300 leading-relaxed">
+                        <h4 class="text-xl font-semibold text-white">Embedding Kya Hai — Deep Explanation</h4>
+                        <p>Embedding ka matlab hai text ko numbers ki ek list (vector) mein convert karna aise tarike se ki <strong class="text-highlight">meaning preserve ho</strong>. "King" ka vector aur "Queen" ka vector paas honge kyunki dono royalty hain. "King" aur "Banana" ke vectors door honge kyunki unka meaning alag hai.</p>
+                        
+                        <p>Famous example: King - Man + Woman ≈ Queen. Yeh isliye kaam karta hai kyunki embedding space mein "gender" ek direction hai. Agar tu "Man" ka vector minus kare aur "Woman" ka add kare, toh tu basically gender direction change kar raha hai — aur result "Queen" ke paas aata hai.</p>
+                        
+                        <p class="bg-dark-bg rounded-lg p-4 border-l-4 border-highlight italic">
+                            "Aise soch — Delhi ka pincode 110001 hai, Mumbai ka 400001. Dono cities hain but numbers alag hain. Embedding mein similar concepts ke 'pincodes' (numbers) close hote hain. Jaise South Delhi ke sab areas ke pincodes 1100XX range mein hain — waise hi similar text ke embeddings paas hote hain."
+                        </p>
+
+                        <h4 class="text-xl font-semibold text-white mt-6">Distance Metrics — Similarity Kaise Measure Karein</h4>
+                        
+                        <div class="grid md:grid-cols-3 gap-4 mt-4">
+                            <div class="bg-dark-bg rounded-lg p-4 border border-accent/30">
+                                <h5 class="font-bold text-accent mb-2">Cosine Similarity</h5>
+                                <p class="text-sm">Vectors ka angle dekhta hai. Direction matter karti hai, length nahi. Agar do texts same topic pe hain toh cosine high hoga chahe ek chhota ho ya bada. <strong>Best for text — 90% cases mein yeh use karo.</strong></p>
+                            </div>
+                            <div class="bg-dark-bg rounded-lg p-4 border border-highlight/30">
+                                <h5 class="font-bold text-highlight mb-2">Euclidean Distance</h5>
+                                <p class="text-sm">Actual distance measure karta hai 2 points ke beech. Magnitude sensitive — agar ek vector bada hai toh distance zyada dikhega even if direction same. Use for: normalized vectors, image embeddings.</p>
+                            </div>
+                            <div class="bg-dark-bg rounded-lg p-4 border border-purple-400/30">
+                                <h5 class="font-bold text-purple-400 mb-2">Dot Product</h5>
+                                <p class="text-sm">Direction + magnitude dono consider karta hai. Fastest compute. But needs normalized vectors for fair comparison. Use for: when vectors are already normalized (most embedding APIs normalize).</p>
+                            </div>
+                        </div>
+
+                        <h4 class="text-xl font-semibold text-white mt-6">Embedding Model Comparison</h4>
+                    </div>
+
+                    <div class="mt-4 overflow-x-auto">
+                        <table class="w-full text-sm border border-dark-border rounded-lg overflow-hidden">
+                            <thead class="bg-accent/20">
+                                <tr>
+                                    <th class="p-3 text-left">Model</th>
+                                    <th class="p-3 text-left">Dimensions</th>
+                                    <th class="p-3 text-left">Cost</th>
+                                    <th class="p-3 text-left">Best For</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-t border-dark-border">
+                                    <td class="p-3 font-mono text-accent">text-embedding-3-small</td>
+                                    <td class="p-3">1536</td>
+                                    <td class="p-3">$0.02/1M tokens</td>
+                                    <td class="p-3">Best value — 90% production use cases</td>
+                                </tr>
+                                <tr class="border-t border-dark-border bg-dark-bg/50">
+                                    <td class="p-3 font-mono text-accent">text-embedding-3-large</td>
+                                    <td class="p-3">3072</td>
+                                    <td class="p-3">$0.13/1M tokens</td>
+                                    <td class="p-3">Maximum quality — when accuracy is critical</td>
+                                </tr>
+                                <tr class="border-t border-dark-border">
+                                    <td class="p-3 font-mono text-accent">Ollama (nomic-embed)</td>
+                                    <td class="p-3">768</td>
+                                    <td class="p-3">Free (local)</td>
+                                    <td class="p-3">Privacy-sensitive data, offline use</td>
+                                </tr>
+                                <tr class="border-t border-dark-border bg-dark-bg/50">
+                                    <td class="p-3 font-mono text-accent">Cohere embed-v3</td>
+                                    <td class="p-3">1024</td>
+                                    <td class="p-3">$0.10/1M tokens</td>
+                                    <td class="p-3">Multilingual, search vs classification modes</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="mt-6">
+                        <div class="code-block">
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            <pre><code class="language-python"># Embeddings — OpenAI + Ollama (Local)
+from langchain_openai import OpenAIEmbeddings
+from langchain_community.embeddings import OllamaEmbeddings
+
+# === OpenAI Embeddings ===
+openai_embed = OpenAIEmbeddings(
+    model="text-embedding-3-small",  # Best value model
+    openai_api_key="your-key"
+)
+
+# Single text embed karo — query ke liye use hota hai
+query_vector = openai_embed.embed_query("What is machine learning?")
+print(f"Vector dimensions: {len(query_vector)}")  # 1536
+print(f"First 5 values: {query_vector[:5]}")  # [-0.02, 0.01, ...]
+
+# Multiple documents embed karo — batch mein faster hai
+doc_vectors = openai_embed.embed_documents([
+    "Machine learning is a subset of AI",
+    "Deep learning uses neural networks",
+    "Python is a programming language"
+])
+print(f"Docs embedded: {len(doc_vectors)}")  # 3
+
+# === IMPORTANT: embed_query vs embed_documents ===
+# embed_query: single string ke liye (search time pe use karo)
+# embed_documents: list of strings ke liye (indexing time pe use karo)
+# Some models internally alag behave karte hain dono ke liye!
+
+# === Ollama Local Embeddings — Free + Private ===
+ollama_embed = OllamaEmbeddings(
+    model="nomic-embed-text",  # Free, runs locally
+    base_url="http://localhost:11434"
+)
+local_vector = ollama_embed.embed_query("Private company data")
+print(f"Local vector dims: {len(local_vector)}")  # 768
+
+# === Similarity Check — Manual ===
+import numpy as np
+
+def cosine_similarity(v1, v2):
+    """Do vectors kitne similar hain — 1.0 = same, 0.0 = unrelated"""
+    dot = np.dot(v1, v2)
+    norm = np.linalg.norm(v1) * np.linalg.norm(v2)
+    return dot / norm
+
+# Test karo
+vec1 = openai_embed.embed_query("artificial intelligence")
+vec2 = openai_embed.embed_query("machine learning")
+vec3 = openai_embed.embed_query("cooking recipes")
+
+print(f"AI vs ML similarity: {cosine_similarity(vec1, vec2):.4f}")      # ~0.85+
+print(f"AI vs Cooking similarity: {cosine_similarity(vec1, vec3):.4f}")  # ~0.30</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2.5 Vector Stores -->
+            <div class="fade-section mb-16">
+                <div class="dark-card bg-dark-card rounded-2xl border border-dark-border p-8 card-hover">
+                    <div class="flex items-center gap-3 mb-6">
+                        <span class="text-3xl">🗄️</span>
+                        <h3 class="text-2xl md:text-3xl font-bold">2.5 Vector Stores — Production Mein Kaunsa Use Karo</h3>
+                    </div>
+
+                    <div class="bg-accent/10 border border-accent/30 rounded-xl p-4 mb-6">
+                        <p class="text-accent font-semibold">🧠 Ek senior engineer ki taraf se —</p>
+                        <p class="text-gray-300 mt-2">"Dev ke liye Chroma use karo, prototype ke liye FAISS, production ke liye Qdrant ya Pinecone. Main personally Qdrant prefer karta hoon — self-host kar sakta hai, filtering powerful hai, aur performance solid hai. Pinecone tab use karo jab infra manage nahi karna ho."</p>
+                    </div>
+
+                    <div class="prose prose-invert max-w-none space-y-4 text-gray-300 leading-relaxed">
+                        <h4 class="text-xl font-semibold text-white">Vector Store Internally Kaise Kaam Karta Hai</h4>
+                        <p>Vector store basically ek specialized database hai jo vectors (numbers ki lists) store karta hai aur unpe fast similarity search karta hai. Normal database mein tu exact match ya range query karta hai. Vector DB mein tu poochta hai "mujhe is vector ke sabse SIMILAR vectors do." Internally yeh Approximate Nearest Neighbor (ANN) algorithms use karta hai:</p>
+                        
+                        <div class="grid md:grid-cols-3 gap-4 mt-4">
+                            <div class="bg-dark-bg rounded-lg p-4 border border-dark-border">
+                                <h5 class="font-bold text-accent mb-2">HNSW</h5>
+                                <p class="text-sm">Hierarchical Navigable Small World — graph-based. Fast search, high memory. Best for most production cases.</p>
+                            </div>
+                            <div class="bg-dark-bg rounded-lg p-4 border border-dark-border">
+                                <h5 class="font-bold text-highlight mb-2">IVF</h5>
+                                <p class="text-sm">Inverted File Index — clusters mein divide karta hai. Less memory, slightly less accurate. Good for huge datasets.</p>
+                            </div>
+                            <div class="bg-dark-bg rounded-lg p-4 border border-dark-border">
+                                <h5 class="font-bold text-purple-400 mb-2">Flat</h5>
+                                <p class="text-sm">Brute force — har vector se compare karo. 100% accurate but slow for large data. Good for small datasets (&lt;100K).</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6">
+                        <div class="code-block">
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            <pre><code class="language-python"># Vector Stores — Complete CRUD Operations
+
+# ============ CHROMA (Best for Development) ============
+from langchain_community.vectorstores import Chroma
+from langchain_openai import OpenAIEmbeddings
+
+embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+
+# CREATE — Collection banao aur documents add karo
+vectorstore = Chroma.from_documents(
+    documents=chunks,              # Chunked documents
+    embedding=embeddings,
+    persist_directory="./chroma_db",
+    collection_name="my_docs"
+)
+
+# SEARCH — Similarity search
+results = vectorstore.similarity_search("leave policy", k=3)
+for doc in results:
+    print(f"Content: {doc.page_content[:100]}...")
+    print(f"Source: {doc.metadata.get('source')}\n")
+
+# SEARCH WITH SCORE — Confidence bhi dekho
+results_with_scores = vectorstore.similarity_search_with_score("leave policy", k=3)
+for doc, score in results_with_scores:
+    print(f"Score: {score:.4f} | {doc.page_content[:80]}...")
+    # Lower score = more similar (distance metric mein)
+
+# DELETE — Specific documents hatao
+vectorstore.delete(ids=["doc_id_1", "doc_id_2"])
+
+# ============ FAISS (Best for Speed) ============
+from langchain_community.vectorstores import FAISS
+
+# Create FAISS index
+faiss_store = FAISS.from_documents(chunks, embeddings)
+
+# Search
+results = faiss_store.similarity_search("company benefits", k=4)
+
+# Save to disk (FAISS in-memory hai by default)
+faiss_store.save_local("./faiss_index")
+
+# Load from disk
+loaded_store = FAISS.load_local("./faiss_index", embeddings,
+                                allow_dangerous_deserialization=True)
+
+# ============ QDRANT (Best for Production) ============
+from langchain_community.vectorstores import Qdrant
+
+qdrant_store = Qdrant.from_documents(
+    documents=chunks,
+    embedding=embeddings,
+    url="http://localhost:6333",   # Self-hosted Qdrant
+    collection_name="production_docs",
+    force_recreate=True           # Dev mein useful — recreate collection
+)
+
+# Search with METADATA FILTER — Qdrant ki superpower
+results = qdrant_store.similarity_search(
+    "engineering processes",
+    k=5,
+    filter={"department": "engineering"}  # Sirf engineering docs mein search
+)
+
+# ============ RETRIEVER BANAO — Chain mein use ke liye ============
+# Basic retriever
+retriever = vectorstore.as_retriever(search_kwargs={"k": 4})
+
+# MMR retriever — diversity ke saath
+mmr_retriever = vectorstore.as_retriever(
+    search_type="mmr",
+    search_kwargs={"k": 4, "fetch_k": 10, "lambda_mult": 0.7}
+)
+
+# Score threshold retriever — sirf confident results
+threshold_retriever = vectorstore.as_retriever(
+    search_type="similarity_score_threshold",
+    search_kwargs={"score_threshold": 0.75, "k": 5}
+)</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 3: ADVANCED RAG -->
+    <section id="advanced-rag" class="py-20 px-4 bg-gradient-to-b from-transparent via-accent/5 to-transparent">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16 fade-section">
+                <h2 class="text-4xl md:text-5xl font-bold mb-4">
+                    <span class="bg-gradient-to-r from-purple-400 to-accent bg-clip-text text-transparent">Advanced RAG</span>
+                </h2>
+                <p class="text-gray-400 text-lg">Yahan Se Real Engineering Shuru Hoti Hai 🚀</p>
+            </div>
+
+            <!-- 3.1 Retrieval Techniques -->
+            <div class="fade-section mb-16">
+                <div class="dark-card bg-dark-card rounded-2xl border border-dark-border p-8 card-hover">
+                    <div class="flex items-center gap-3 mb-6">
+                        <span class="text-3xl">🎯</span>
+                        <h3 class="text-2xl md:text-3xl font-bold">3.1 Retrieval Techniques — Basic Se Advanced</h3>
+                    </div>
+
+                    <div class="bg-accent/10 border border-accent/30 rounded-xl p-4 mb-6">
+                        <p class="text-accent font-semibold">🧠 Ek senior engineer ki taraf se —</p>
+                        <p class="text-gray-300 mt-2">"Simple similarity search se start karo, phir jab accuracy issues aayein toh MMR add karo, phir hybrid search, phir re-ranking. Har layer add karne ka matlab hai latency badhega aur cost badhega — toh blindly sab mat add karo. Measure karo pehle ki problem kya hai, phir solve karo."</p>
+                    </div>
+
+                    <!-- MMR -->
+                    <div class="mt-8 bg-dark-bg rounded-xl p-6 border border-dark-border">
+                        <h4 class="text-xl font-bold text-highlight mb-4">MMR — Maximal Marginal Relevance</h4>
+                        <p class="text-gray-300 mb-4">Problem: Bina MMR ke agar tu "Python best practices" search kare, toh top 5 results almost same content ke honge — sab "use virtual environments" ke baare mein. Kyunki woh sabse relevant hai. Lekin user ko diverse answers chahiye — virtual env, type hints, testing, etc.</p>
+                        <p class="text-gray-300 mb-4"><strong class="text-white">MMR ka formula:</strong> Score = λ × Relevance(doc, query) - (1-λ) × max(Similarity(doc, already_selected_docs))</p>
+                        <p class="text-gray-300 mb-4">λ (lambda) = 1.0 means pure relevance (no diversity). λ = 0.0 means maximum diversity. Sweet spot usually 0.5-0.7.</p>
+                        
+                        <div class="mermaid mt-4">
+flowchart LR
+    Q["Query"] --> FS["Fetch top fetch_k=20 docs"]
+    FS --> MMR["Apply MMR Algorithm"]
+    MMR --> D1["Doc 1: Most Relevant"]
+    MMR --> D2["Doc 2: Relevant + Different"]
+    MMR --> D3["Doc 3: Relevant + More Different"]
+    MMR --> D4["Doc 4: Diverse Coverage"]
+                        </div>
+                    </div>
+
+                    <!-- Hybrid Search -->
+                    <div class="mt-8 bg-dark-bg rounded-xl p-6 border border-dark-border">
+                        <h4 class="text-xl font-bold text-highlight mb-4">Hybrid Search — Dense + Sparse Combined</h4>
+                        <p class="text-gray-300 mb-4">Semantic search (dense) powerful hai — woh "car" aur "automobile" ko match kar lega. Lekin agar user search kare "error code ERR_2451" — toh semantic search miss kar sakta hai kyunki yeh exact match chahiye. BM25 (sparse/keyword search) exact terms perfectly match karta hai. <strong class="text-white">Hybrid = best of both worlds.</strong></p>
+                        <p class="text-gray-300 mb-4">Soch Swiggy search jaisa: tu type kare "paneer" — keyword match karega sab paneer dishes. Lekin agar tu type kare "something spicy and creamy for dinner" — semantic search better karega. Hybrid dono handle karta hai.</p>
+                        
+                        <div class="mermaid mt-4">
+flowchart TD
+    Q["User Query"] --> D["Dense/Semantic Search"]
+    Q --> S["Sparse/BM25 Keyword Search"]
+    D --> R1["Semantic Results (meaning-based)"]
+    S --> R2["Keyword Results (exact match)"]
+    R1 --> E["EnsembleRetriever (weighted merge)"]
+    R2 --> E
+    E --> F["Final Ranked Results"]
+                        </div>
+
+                        <div class="code-block mt-4">
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            <pre><code class="language-python"># Hybrid Search — Dense + Sparse Combined
+from langchain.retrievers import EnsembleRetriever
+from langchain_community.retrievers import BM25Retriever
+from langchain_community.vectorstores import Chroma
+from langchain_openai import OpenAIEmbeddings
+
+# Dense Retriever — Semantic search (meaning samajhta hai)
+embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+vectorstore = Chroma.from_documents(chunks, embeddings)
+dense_retriever = vectorstore.as_retriever(search_kwargs={"k": 5})
+
+# Sparse Retriever — BM25 keyword search (exact words dhundhta hai)
+bm25_retriever = BM25Retriever.from_documents(chunks)
+bm25_retriever.k = 5  # Top 5 keyword matches
+
+# Ensemble — Dono ko combine karo weighted average se
+hybrid_retriever = EnsembleRetriever(
+    retrievers=[dense_retriever, bm25_retriever],
+    weights=[0.6, 0.4]  # 60% semantic, 40% keyword
+    # Technical docs mein keyword weight badhao (0.5, 0.5)
+    # General content mein semantic weight badhao (0.7, 0.3)
+)
+
+# Use karo
+results = hybrid_retriever.invoke("error code ERR_2451 fix")
+# Dense will find: docs about error handling concepts
+# BM25 will find: docs containing exact "ERR_2451" text
+# Combined = best coverage!</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- Contextual Compression -->
+                    <div class="mt-8 bg-dark-bg rounded-xl p-6 border border-dark-border">
+                        <h4 class="text-xl font-bold text-highlight mb-4">Contextual Compression — Noise Hatao</h4>
+                        <p class="text-gray-300 mb-4">Problem: Tera retrieved chunk 500 words ka hai but sirf 2 lines relevant hain user ki query ke liye. Baaki sab noise hai jo LLM ko confuse karega aur tokens waste karega. Contextual Compression post-retrieval step hai — retrieve karo, phir irrelevant parts hatao.</p>
+                        
+                        <div class="code-block mt-4">
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            <pre><code class="language-python"># Contextual Compression — Relevant part hi LLM ko do
+from langchain.retrievers import ContextualCompressionRetriever
+from langchain.retrievers.document_compressors import (
+    LLMChainExtractor,
+    EmbeddingsFilter,
+    DocumentCompressorPipeline
+)
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from langchain.text_splitter import CharacterTextSplitter
+
+llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+
+# Method 1: LLM-based extraction — accurate but slow + expensive
+llm_compressor = LLMChainExtractor.from_llm(llm)
+compression_retriever = ContextualCompressionRetriever(
+    base_compressor=llm_compressor,
+    base_retriever=retriever  # Original retriever
+)
+
+# Method 2: Embeddings-based filter — fast + cheap
+embeddings_filter = EmbeddingsFilter(
+    embeddings=embeddings,
+    similarity_threshold=0.75  # 0.75 se kam similar chunks drop
+)
+
+# Method 3: Pipeline — combine multiple compression steps
+pipeline_compressor = DocumentCompressorPipeline(
+    transformers=[
+        CharacterTextSplitter(chunk_size=300, chunk_overlap=0),  # Sub-chunk karo
+        embeddings_filter  # Phir filter karo
+    ]
+)
+
+# Use in production — pipeline approach best hai (fast + accurate)
+final_retriever = ContextualCompressionRetriever(
+    base_compressor=pipeline_compressor,
+    base_retriever=retriever
+)
+compressed_docs = final_retriever.invoke("What is the leave policy?")</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- Parent Document Retriever -->
+                    <div class="mt-8 bg-dark-bg rounded-xl p-6 border border-dark-border">
+                        <h4 class="text-xl font-bold text-highlight mb-4">Parent Document Retriever — Best of Both Worlds</h4>
+                        <p class="text-gray-300 mb-4">Yeh ek brilliant trick hai. Dilemma: Small chunks = better retrieval (precise match). Large chunks = better generation (more context for LLM). Solution: <strong class="text-white">Small chunks INDEX karo search ke liye. Jab match mile, toh unka PARENT (large chunk) return karo LLM ke liye.</strong> Jaise index mein tu keywords dhundhta hai (small), lekin phir poora page padhta hai (large).</p>
+                        
+                        <div class="code-block mt-4">
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            <pre><code class="language-python"># Parent Document Retriever
+from langchain.retrievers import ParentDocumentRetriever
+from langchain.storage import InMemoryStore
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_community.vectorstores import Chroma
+from langchain_openai import OpenAIEmbeddings
+
+# Child splitter — chhote chunks jo search mein use honge
+child_splitter = RecursiveCharacterTextSplitter(chunk_size=200, chunk_overlap=20)
+
+# Parent splitter — bade chunks jo LLM ko jaayenge
+parent_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
+
+# Vector store for search (children stored here)
+vectorstore = Chroma(
+    collection_name="split_parents",
+    embedding_function=OpenAIEmbeddings(model="text-embedding-3-small")
+)
+
+# Document store for full parent chunks
+docstore = InMemoryStore()
+
+# Parent Document Retriever — magic yahan hai
+parent_retriever = ParentDocumentRetriever(
+    vectorstore=vectorstore,
+    docstore=docstore,
+    child_splitter=child_splitter,
+    parent_splitter=parent_splitter,
+)
+
+# Documents add karo — internally children aur parents dono store hote hain
+parent_retriever.add_documents(documents)
+
+# Search — child match hoga, parent return hoga!
+results = parent_retriever.invoke("annual leave quota")
+# Result = 1000 char parent chunk (rich context)
+# But matching hua = 200 char child chunk pe (precise)</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- Multi-Query Retriever -->
+                    <div class="mt-8 bg-dark-bg rounded-xl p-6 border border-dark-border">
+                        <h4 class="text-xl font-bold text-highlight mb-4">Multi-Query Retriever — Ek Query Se Sab Nahi Milta</h4>
+                        <p class="text-gray-300 mb-4">Problem: User ki ek query se saare relevant documents nahi milte. "Tell me about our benefits" — ek query se health insurance milega, lekin travel allowance miss ho sakta hai. Solution: LLM se 3-5 query variations generate karo, sab search karo, results combine karo. Coverage dramatically improve hoti hai.</p>
+                        
+                        <div class="code-block mt-4">
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            <pre><code class="language-python"># Multi-Query Retriever — Better Recall
+from langchain.retrievers.multi_query import MultiQueryRetriever
+from langchain_openai import ChatOpenAI
+
+llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.3)
+
+# LLM will generate multiple query perspectives
+multi_retriever = MultiQueryRetriever.from_llm(
+    retriever=vectorstore.as_retriever(search_kwargs={"k": 3}),
+    llm=llm
+)
+# User asks: "What employee benefits do we offer?"
+# LLM generates:
+#   1. "employee health insurance coverage details"
+#   2. "travel and transport allowance policy"  
+#   3. "annual bonus and incentive structure"
+# Each variation searches separately, results are deduplicated!
+
+results = multi_retriever.invoke("What employee benefits do we offer?")
+# Bahut better coverage milega single query se</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3.2 Advanced RAG Patterns -->
+            <div class="fade-section mb-16">
+                <div class="dark-card bg-dark-card rounded-2xl border border-dark-border p-8 card-hover">
+                    <div class="flex items-center gap-3 mb-6">
+                        <span class="text-3xl">🏗️</span>
+                        <h3 class="text-2xl md:text-3xl font-bold">3.2 Advanced RAG Patterns — Production Architecture</h3>
+                    </div>
+
+                    <!-- RAG Fusion -->
+                    <div class="mt-8 bg-dark-bg rounded-xl p-6 border border-accent/30">
+                        <h4 class="text-xl font-bold text-accent mb-4">Pattern 1: RAG Fusion</h4>
+                        <p class="text-gray-300 mb-4">RAG Fusion Multi-Query ka advanced version hai. Difference: Multi-Query sirf results combine karta hai (union), RAG Fusion <strong class="text-white">Reciprocal Rank Fusion (RRF)</strong> use karta hai ranking ke liye. RRF ka idea simple hai — agar ek document multiple queries mein top pe aata hai, toh woh definitely important hai. Score = sum(1 / (rank + k)) across all queries.</p>
+                        <p class="text-gray-300 mb-4">Indian analogy: Jaise JEE mein Physics, Chemistry, Maths teen subjects hain. Agar ek student teeno mein top 10 mein hai, toh woh overall top mein hoga. RRF wahi karta hai — multiple rankings ko combine karta hai.</p>
+                        
+                        <div class="mermaid mt-4 mb-4">
+flowchart TD
+    Q["Original Query"] --> LLM["LLM generates 4 variations"]
+    LLM --> Q1["Query 1"] 
+    LLM --> Q2["Query 2"]
+    LLM --> Q3["Query 3"]
+    LLM --> Q4["Query 4"]
+    Q1 --> VDB["Vector DB Search each"]
+    Q2 --> VDB
+    Q3 --> VDB
+    Q4 --> VDB
+    VDB --> RRF["Reciprocal Rank Fusion"]
+    RRF --> TOP["Top Ranked Documents"]
+    TOP --> GEN["LLM Generate Answer"]
+                        </div>
+
+                        <div class="code-block mt-4">
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            <pre><code class="language-python"># RAG Fusion — Multiple Queries + RRF Ranking
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from langchain.prompts import ChatPromptTemplate
+
+llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.7)
+
+# Step 1: Generate query variations
+query_gen_prompt = ChatPromptTemplate.from_template(
+    """Tu ek helpful assistant hai. User ki query ke 4 alag perspectives generate kar.
+    Har variation alag angle se same information dhundhne ki koshish kare.
+    
+    Original query: {question}
+    
+    4 alternative queries (ek per line):"""
+)
+
+def generate_queries(question):
+    response = llm.invoke(query_gen_prompt.format(question=question))
+    return [q.strip() for q in response.content.split("\n") if q.strip()]
+
+# Step 2: Search each query
+def search_all_queries(queries, retriever):
+    all_results = {}
+    for query in queries:
+        docs = retriever.invoke(query)
+        all_results[query] = docs
+    return all_results
+
+# Step 3: Reciprocal Rank Fusion
+def reciprocal_rank_fusion(results_dict, k=60):
+    """RRF formula: score = sum(1 / (rank + k)) for each query's ranking"""
+    fused_scores = {}
+    for query, docs in results_dict.items():
+        for rank, doc in enumerate(docs):
+            doc_id = doc.page_content[:100]  # Use content as ID
+            if doc_id not in fused_scores:
+                fused_scores[doc_id] = {"doc": doc, "score": 0}
+            fused_scores[doc_id]["score"] += 1 / (rank + k)
+    
+    # Sort by fused score — highest first
+    ranked = sorted(fused_scores.values(), key=lambda x: x["score"], reverse=True)
+    return [item["doc"] for item in ranked[:5]]  # Top 5
+
+# Full pipeline
+question = "What are the key benefits of RAG systems?"
+queries = generate_queries(question)
+all_results = search_all_queries(queries, retriever)
+final_docs = reciprocal_rank_fusion(all_results)</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- HyDE -->
+                    <div class="mt-8 bg-dark-bg rounded-xl p-6 border border-highlight/30">
+                        <h4 class="text-xl font-bold text-highlight mb-4">Pattern 2: HyDE (Hypothetical Document Embeddings)</h4>
+                        <p class="text-gray-300 mb-4">Yeh genius trick hai. Problem: User ki query chhoti hoti hai ("What is RAG?") aur documents bade hote hain (500 words ka paragraph). Short query ka embedding aur long document ka embedding ka semantic gap hota hai — match ache se nahi hota.</p>
+                        <p class="text-gray-300 mb-4">Solution: <strong class="text-white">Pehle LLM se ek hypothetical answer generate karo (without retrieval), phir US answer ko embed karo aur search karo.</strong> Hypothetical answer document-length ka hoga, toh vector space mein real documents ke paas hoga. Jaise tu interview mein jaane se pehle expected questions ke model answers prepare karta hai — wahi concept.</p>
+                        <p class="text-gray-300 mb-4">Kab use karo: Jab simple queries pe poor retrieval ho rahi ho. Kab NAHI: Factoid queries pe (jahan query already specific hai). Trade-off: Extra LLM call = more latency + cost.</p>
+                        
+                        <div class="mermaid mt-4 mb-4">
+flowchart LR
+    Q["User Query (short)"] --> LLM1["LLM generates hypothetical answer (long)"]
+    LLM1 --> HE["Embed hypothetical answer"]
+    HE --> VDB["Search Vector DB"]
+    VDB --> REAL["Real relevant documents found!"]
+    REAL --> LLM2["LLM generates final answer with real docs"]
+                        </div>
+
+                        <div class="code-block mt-4">
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            <pre><code class="language-python"># HyDE — Hypothetical Document Embeddings
+from langchain.chains import HypotheticalDocumentEmbedder, LLMChain
+from langchain.prompts import PromptTemplate
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+
+llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.5)
+base_embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+
+# HyDE prompt — LLM ko bolo ki hypothetical document generate kare
+hyde_prompt = PromptTemplate(
+    input_variables=["question"],
+    template="""Please write a detailed passage that would answer the following question.
+Write as if it's from a technical document. Be specific and detailed.
+
+Question: {question}
+
+Detailed passage:"""
+)
+
+# HyDE Embedder — internally LLM call + embedding hota hai
+hyde_embeddings = HypotheticalDocumentEmbedder.from_llm(
+    llm=llm,
+    base_embeddings=base_embeddings,
+    prompt_key="question"
+)
+
+# Ab jab tu search karega, internally yeh hoga:
+# 1. Query -> LLM -> Hypothetical Document (500 words)
+# 2. Hypothetical Document -> Embedding (1536 dims)
+# 3. Embedding -> Vector DB search
+# 4. Real documents milenge jo hypothetical doc ke similar hain!
+
+# Use with vector store
+vectorstore = Chroma.from_documents(chunks, base_embeddings)  # Normal embed
+# But search with HyDE embeddings
+hyde_results = vectorstore.similarity_search_by_vector(
+    hyde_embeddings.embed_query("What is RAG?"), k=4
+)
+# Much better results for short/vague queries!</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- CRAG -->
+                    <div class="mt-8 bg-dark-bg rounded-xl p-6 border border-green-400/30">
+                        <h4 class="text-xl font-bold text-green-400 mb-4">Pattern 3: Corrective RAG (CRAG)</h4>
+                        <p class="text-gray-300 mb-4">Normal RAG ki ek badi problem hai — agar retrieved documents relevant nahi hain toh bhi LLM unse answer generate kar dega (garbage in = garbage out). CRAG kehta hai: <strong class="text-white">Retrieve karo, phir GRADE karo ki documents relevant hain ya nahi. Agar nahi hain, toh web search fallback pe jao.</strong></p>
+                        <p class="text-gray-300 mb-4">Analogy: Tu exam mein open book use kar raha hai. Agar tere book mein answer nahi mil raha, toh tu chupke se Google karta hai (web search). CRAG yahi karti hai — systematically.</p>
+                        
+                        <div class="mermaid mt-4 mb-4">
+flowchart TD
+    Q["User Query"] --> R["Retrieve from Vector DB"]
+    R --> G["Grade Each Document (LLM)"]
+    G --> D{"Relevance Check"}
+    D -->|"All Relevant"| GEN["Generate Answer"]
+    D -->|"Some Ambiguous"| WEB["Supplement with Web Search"]
+    D -->|"All Irrelevant"| RW["Rewrite Query + Web Search"]
+    WEB --> GEN
+    RW --> GEN
+    GEN --> OUT["Final Answer"]
+                        </div>
+
+                        <div class="code-block mt-4">
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            <pre><code class="language-python"># Corrective RAG (CRAG) — Self-Correcting Retrieval
+from langchain_openai import ChatOpenAI
+from langchain.prompts import ChatPromptTemplate
+
+llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+
+# Document Grader — kya yeh document query ke liye relevant hai?
+grade_prompt = ChatPromptTemplate.from_template(
+    """Tu ek grader hai. Evaluate kar ki yeh document user ki query ke liye relevant hai ya nahi.
+    Sirf 'yes' ya 'no' bol.
+    
+    Document: {document}
+    Question: {question}
+    
+    Relevant (yes/no):"""
+)
+
+def grade_document(doc, question):
+    """Ek document grade karo — relevant hai ya nahi"""
+    response = llm.invoke(grade_prompt.format(
+        document=doc.page_content, question=question
+    ))
+    return response.content.strip().lower() == "yes"
+
+def corrective_rag(question, retriever):
+    """Full CRAG pipeline"""
+    # Step 1: Retrieve
+    docs = retriever.invoke(question)
+    
+    # Step 2: Grade each document
+    relevant_docs = []
+    for doc in docs:
+        if grade_document(doc, question):
+            relevant_docs.append(doc)
+    
+    # Step 3: Decision
+    if len(relevant_docs) >= 2:
+        # Enough relevant docs — generate directly
+        context = "\n".join([d.page_content for d in relevant_docs])
+    elif len(relevant_docs) == 1:
+        # Partial — supplement with web search
+        web_results = web_search(question)
+        context = relevant_docs[0].page_content + "\n" + web_results
+    else:
+        # No relevant docs — rewrite query + web search
+        rewritten = rewrite_query(question)
+        context = web_search(rewritten)
+    
+    # Step 4: Generate answer
+    return generate_answer(context, question)</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- Self-RAG -->
+                    <div class="mt-8 bg-dark-bg rounded-xl p-6 border border-amber-400/30">
+                        <h4 class="text-xl font-bold text-amber-400 mb-4">Pattern 4: Self-RAG (Self-Reflective RAG)</h4>
+                        <p class="text-gray-300 mb-4">Self-RAG sabse advanced pattern hai. Agent khud decide karta hai har step pe: <strong class="text-white">(1) Kya mujhe retrieve karna chahiye? (2) Jo retrieve kiya woh relevant hai? (3) Mera answer documents se faithful hai? (4) Mera answer useful hai?</strong> Agar kisi step pe "no" aata hai toh woh loop back karta hai. Yeh 4 "reflection tokens" hain — ISRET, ISREL, ISSUP, ISUSE.</p>
+                        <p class="text-gray-300 mb-4">Soch aise — tu report likh raha hai. Pehle sochta hai "kya mujhe reference chahiye?" (ISRET). Phir reference padhta hai aur sochta hai "yeh relevant hai?" (ISREL). Report likhta hai aur check karta hai "mera likha hua reference ke saath match karta hai?" (ISSUP). Finally "kya yeh helpful hai reader ke liye?" (ISUSE).</p>
+                        
+                        <div class="mermaid mt-4 mb-4">
+flowchart TD
+    Q["Query"] --> RC{"Should I retrieve? (ISRET)"}
+    RC -->|"Yes"| RET["Retrieve Documents"]
+    RC -->|"No"| GEN1["Generate Directly"]
+    RET --> GR{"Are docs relevant? (ISREL)"}
+    GR -->|"Yes"| GEN2["Generate with Context"]
+    GR -->|"No"| TQ["Transform Query & Retry"]
+    TQ --> RET
+    GEN2 --> GH{"Is answer faithful? (ISSUP)"}
+    GH -->|"Yes"| USE{"Is answer useful? (ISUSE)"}
+    GH -->|"No"| GEN2
+    USE -->|"Yes"| OUT["Output Final Answer"]
+    USE -->|"No"| TQ
+                        </div>
+                    </div>
+
+                    <!-- Graph RAG -->
+                    <div class="mt-8 bg-dark-bg rounded-xl p-6 border border-pink-400/30">
+                        <h4 class="text-xl font-bold text-pink-400 mb-4">Pattern 5: Graph RAG — Knowledge Graphs + RAG</h4>
+                        <p class="text-gray-300 mb-4">Normal RAG mein ek chunk se answer milta hai. Lekin kuch questions ke liye multiple hops chahiye. "Elon Musk ki company ka CEO kaun hai?" — pehle Elon Musk → Tesla/SpaceX (entity), phir Tesla → CEO (relation). Single chunk mein yeh sab nahi hoga necessarily.</p>
+                        <p class="text-gray-300 mb-4">Graph RAG mein documents se entities aur relationships extract karte hain, Knowledge Graph (Neo4j) mein store karte hain, aur query time pe graph traversal se multi-hop answers milte hain. Expensive hai — lekin complex domains (healthcare, finance, legal) mein game-changing hai.</p>
+                        
+                        <div class="mermaid mt-4">
+flowchart LR
+    PDF["Documents"] --> EE["Entity Extraction (LLM)"]
+    EE --> KG["Knowledge Graph (Neo4j)"]
+    Q["User Query"] --> QA["Query Analysis"]
+    QA --> KG
+    KG --> MH["Multi-hop Traversal"]
+    MH --> CTX["Rich Context from Graph"]
+    CTX --> LLM["LLM Answer Generation"]
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 4: AGENTIC AI -->
+    <section id="agentic-ai" class="py-20 px-4">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16 fade-section">
+                <h2 class="text-4xl md:text-5xl font-bold mb-4">
+                    <span class="bg-gradient-to-r from-highlight to-green-400 bg-clip-text text-transparent">Agentic AI</span>
+                </h2>
+                <p class="text-gray-400 text-lg">Yahan Se Game Change Hota Hai 🎮</p>
+            </div>
+
+            <!-- 4.1 Agent Kya Hai -->
+            <div class="fade-section mb-16">
+                <div class="dark-card bg-dark-card rounded-2xl border border-dark-border p-8 card-hover">
+                    <div class="flex items-center gap-3 mb-6">
+                        <span class="text-3xl">🤖</span>
+                        <h3 class="text-2xl md:text-3xl font-bold">4.1 Agent Kya Hota Hai — Real Engineer Ki Taraf Se</h3>
+                    </div>
+
+                    <div class="bg-accent/10 border border-accent/30 rounded-xl p-4 mb-6">
+                        <p class="text-accent font-semibold">🧠 Ek senior engineer ki taraf se —</p>
+                        <p class="text-gray-300 mt-2">"Bahut log confused hote hain ki Agent aur RAG mein kya fark hai. Simple tarike se samjho: RAG ek vending machine hai — button dabao, item aaye, khatam. Agent ek personal assistant hai — woh sochta hai, plan banata hai, multiple tools use karta hai, galti pe correct karta hai, aur tab tak kaam karta hai jab tak task complete na ho. Agent mein LOOP hai, RAG mein nahi."</p>
+                    </div>
+
+                    <div class="prose prose-invert max-w-none space-y-4 text-gray-300 leading-relaxed">
+                        <h4 class="text-xl font-semibold text-white">The Fundamental Difference</h4>
+                        <p><strong class="text-highlight">RAG:</strong> Query → Retrieve → Answer. Ek shot. Ek baar. Done. Koi decision-making nahi. Koi loop nahi. Tu poochh, woh jawab de, finish.</p>
+                        <p><strong class="text-highlight">Agent:</strong> Query → <em>Think</em> → <em>Plan</em> → Act → <em>Observe</em> → <em>Think again</em> → Act again → ... → Final Answer. Multiple steps. Decisions har step pe. Self-correction possible.</p>
+                        
+                        <p class="bg-dark-bg rounded-lg p-4 border-l-4 border-accent italic mt-4">
+                            "RAG ek fast food counter hai — tu order de, 2 minute mein burger mil gaya, chal nikal. Agent ek personal chef hai — pehle poochta hai tera taste kya hai, allergy hai kya, phir recipe plan karta hai, ingredients check karta hai fridge mein, agar nahi hai toh market jaata hai, cook karta hai, taste karta hai, adjust karta hai, phir serve karta hai. Quality difference samajh aaya?"
+                        </p>
+
+                        <h4 class="text-xl font-semibold text-white mt-6">What Makes Something an Agent — 5 Components</h4>
+                        
+                        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+                            <div class="bg-dark-bg rounded-lg p-4 border border-accent/30">
+                                <h5 class="font-bold text-accent mb-2">🧠 1. LLM as Brain</h5>
+                                <p class="text-sm">Reasoning engine. Decisions leta hai. Plan banata hai. Natural language samajhta hai. GPT-4o, Claude — yeh brain hain agent ka.</p>
+                            </div>
+                            <div class="bg-dark-bg rounded-lg p-4 border border-highlight/30">
+                                <h5 class="font-bold text-highlight mb-2">🔧 2. Tools (Hands)</h5>
+                                <p class="text-sm">Actions jo agent le sakta hai. Web search, database query, API calls, code execution, file operations. Bina tools ke agent sirf soch sakta hai, kar kuch nahi sakta.</p>
+                            </div>
+                            <div class="bg-dark-bg rounded-lg p-4 border border-green-400/30">
+                                <h5 class="font-bold text-green-400 mb-2">💾 3. Memory</h5>
+                                <p class="text-sm">What agent remembers. Short-term = current conversation. Long-term = past interactions. Bina memory ke agent goldfish hai — har turn pe bhool jaata hai.</p>
+                            </div>
+                            <div class="bg-dark-bg rounded-lg p-4 border border-amber-400/30">
+                                <h5 class="font-bold text-amber-400 mb-2">📋 4. Planning</h5>
+                                <p class="text-sm">Complex task ko steps mein todna. "Research paper likhna hai" → outline → each section → review → finalize. Without planning agent randomly tools call karega.</p>
+                            </div>
+                            <div class="bg-dark-bg rounded-lg p-4 border border-pink-400/30">
+                                <h5 class="font-bold text-pink-400 mb-2">👁️ 5. Observation Loop</h5>
+                                <p class="text-sm">Har action ke baad result observe karo, evaluate karo, next action decide karo. Yeh woh loop hai jo agent ko "intelligent" banata hai. Trial and error + learning.</p>
+                            </div>
+                        </div>
+
+                        <h4 class="text-xl font-semibold text-white mt-8">Real Production Examples</h4>
+                        <div class="space-y-3 mt-4">
+                            <div class="bg-dark-bg rounded-lg p-4 border border-dark-border">
+                                <p class="font-semibold text-accent">Customer Support Agent</p>
+                                <p class="text-sm mt-1">RAG se knowledge base search → CRM se customer history fetch → Sentiment analyze karo → Appropriate response generate karo → Agar complex hai toh ticket create karo → Follow-up schedule karo</p>
+                            </div>
+                            <div class="bg-dark-bg rounded-lg p-4 border border-dark-border">
+                                <p class="font-semibold text-highlight">Code Review Agent</p>
+                                <p class="text-sm mt-1">PR read karo → Style guide check karo → Security vulnerabilities scan karo → Performance issues identify karo → Similar past bugs search karo → Detailed review comment likho</p>
+                            </div>
+                            <div class="bg-dark-bg rounded-lg p-4 border border-dark-border">
+                                <p class="font-semibold text-green-400">Research Agent</p>
+                                <p class="text-sm mt-1">Topic samjho → Web search karo multiple angles se → Sources cross-reference karo → Key findings extract karo → Summary + citation generate karo → Final structured report banao</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-red-500/10 border border-red-500/30 rounded-xl p-4 mt-6">
+                            <p class="font-semibold text-red-400">❌ Common Misconception: "Agent = just calling tools"</p>
+                            <p class="text-sm text-gray-300 mt-2">Nahi bhai. Tool calling ke liye simple function calling API kaafi hai. Agent ka asli magic hai — <strong>REASONING + DECISION MAKING + SELF-CORRECTION</strong>. Agent decide karta hai KAUNSA tool call karna hai, KAB call karna hai, result EVALUATE karta hai, aur agar galat hai toh CORRECT karta hai. Yeh loop aur intelligence agent ko agent banati hai, sirf tool access nahi.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4.2 Agent Architecture -->
+            <div class="fade-section mb-16">
+                <div class="dark-card bg-dark-card rounded-2xl border border-dark-border p-8 card-hover">
+                    <div class="flex items-center gap-3 mb-6">
+                        <span class="text-3xl">🏛️</span>
+                        <h3 class="text-2xl md:text-3xl font-bold">4.2 Agent Architecture — Andar Se Kaise Kaam Karta Hai</h3>
+                    </div>
+
+                    <div class="mermaid mb-6">
+flowchart TD
+    U["👤 User Input"] --> LLM["🧠 LLM Brain (Reasoning)"]
+    LLM --> P["📋 Planning Module"]
+    P --> TC["🔧 Tool Selection"]
+    TC --> T1["📚 RAG Retriever"]
+    TC --> T2["🌐 Web Search"]
+    TC --> T3["💻 Code Executor"]
+    TC --> T4["📡 API Caller"]
+    T1 --> OBS["👁️ Observation"]
+    T2 --> OBS
+    T3 --> OBS
+    T4 --> OBS
+    OBS --> MEM["💾 Memory Update"]
+    MEM --> LLM
+    LLM --> D{"✅ Task Complete?"}
+    D -->|"No, continue"| P
+    D -->|"Yes, done!"| ANS["📤 Final Answer"]
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-6 mt-6">
+                        <div class="bg-dark-bg rounded-lg p-5 border border-dark-border">
+                            <h5 class="font-bold text-accent mb-3">🧠 LLM Brain — Decision Maker</h5>
+                            <p class="text-sm text-gray-300">Yeh agent ka dimag hai. Har step pe yeh decide karta hai — kya karna hai next? Kaunsa tool use karna hai? Kya information enough hai answer dene ke liye? Modern LLMs (GPT-4o, Claude 3.5) bahut ache decision makers hain. Temperature 0 rakhna production mein — deterministic decisions chahiye.</p>
+                        </div>
+                        <div class="bg-dark-bg rounded-lg p-5 border border-dark-border">
+                            <h5 class="font-bold text-highlight mb-3">📋 Planning — Task Decomposition</h5>
+                            <p class="text-sm text-gray-300">Complex task ko manageable steps mein todna. "Quarterly report banao" → (1) Data fetch karo, (2) Trends identify karo, (3) Charts generate karo, (4) Summary likho, (5) Format karo. Without planning, agent randomly kaam karega aur bahut tokens waste honge.</p>
+                        </div>
+                        <div class="bg-dark-bg rounded-lg p-5 border border-dark-border">
+                            <h5 class="font-bold text-green-400 mb-3">🔧 Tools — Agent Ke Haath</h5>
+                            <p class="text-sm text-gray-300">Tools woh actions hain jo agent le sakta hai. LLM ko tool definitions diye jaate hain (name, description, parameters). LLM decide karta hai kaunsa call karna hai. Important: Tool descriptions BAHUT clear honi chahiye — LLM unhi ko padh ke decide karta hai.</p>
+                        </div>
+                        <div class="bg-dark-bg rounded-lg p-5 border border-dark-border">
+                            <h5 class="font-bold text-amber-400 mb-3">👁️ Observation — Learn from Results</h5>
+                            <p class="text-sm text-gray-300">Har tool call ke baad result observe karna — kya expected output aaya? Error aaya? Partial result aaya? Observation se agent next decision better le pata hai. Yeh feedback loop agent ko "intelligent" banata hai vs simple pipeline jo blindly execute karta hai.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4.3 Memory Systems -->
+            <div class="fade-section mb-16">
+                <div class="dark-card bg-dark-card rounded-2xl border border-dark-border p-8 card-hover">
+                    <div class="flex items-center gap-3 mb-6">
+                        <span class="text-3xl">🧠</span>
+                        <h3 class="text-2xl md:text-3xl font-bold">4.3 Memory Systems — Agent Ki Yaaddasht</h3>
+                    </div>
+
+                    <div class="bg-accent/10 border border-accent/30 rounded-xl p-4 mb-6">
+                        <p class="text-accent font-semibold">🧠 Ek senior engineer ki taraf se —</p>
+                        <p class="text-gray-300 mt-2">"Bina memory ke agent goldfish hai — har message pe fresh start. Production mein memory critical hai. Short-term memory token limit handle karti hai (ConversationSummaryMemory). Long-term memory across sessions kaam aati hai (vector store based). Sahi memory architecture choose karna agent ki quality 2x improve karta hai."</p>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-6 mt-6">
+                        <div class="bg-dark-bg rounded-lg p-5 border border-accent/30">
+                            <h5 class="font-bold text-accent mb-3">💬 Short-Term Memory</h5>
+                            <p class="text-sm text-gray-300 mb-3">Current conversation ka history. Har message yaad rakhta hai. Problem: jab conversation lamba hota hai, token limit hit hoti hai.</p>
+                            <p class="text-xs text-gray-400"><strong>ConversationBufferMemory:</strong> Sab store karo (simple but expensive)</p>
+                            <p class="text-xs text-gray-400"><strong>ConversationBufferWindowMemory:</strong> Last k messages hi rakho</p>
+                            <p class="text-xs text-gray-400"><strong>ConversationSummaryMemory:</strong> Purani conversation summarize karo — smart!</p>
+                        </div>
+                        <div class="bg-dark-bg rounded-lg p-5 border border-highlight/30">
+                            <h5 class="font-bold text-highlight mb-3">🗃️ Long-Term Memory</h5>
+                            <p class="text-sm text-gray-300 mb-3">Across sessions persist karta hai. Vector store mein important facts store karo. Jab relevant ho tab retrieve karo. mem0 library popular hai iske liye.</p>
+                            <p class="text-xs text-gray-400"><strong>Use case:</strong> "User prefers Hindi responses" — ek baar bola, hamesha yaad</p>
+                            <p class="text-xs text-gray-400"><strong>Implementation:</strong> Vector DB + relevance search on each turn</p>
+                        </div>
+                        <div class="bg-dark-bg rounded-lg p-5 border border-green-400/30">
+                            <h5 class="font-bold text-green-400 mb-3">📖 Episodic Memory</h5>
+                            <p class="text-sm text-gray-300 mb-3">Past tasks aur unke outcomes yaad rakhna. "Pichli baar jab yeh query aayi thi, tab yeh approach kaam nahi ki" — agent learns from history.</p>
+                            <p class="text-xs text-gray-400"><strong>Implementation:</strong> Task logs store karo with success/failure labels</p>
+                            <p class="text-xs text-gray-400"><strong>Benefit:</strong> Same mistakes repeat nahi hoti</p>
+                        </div>
+                        <div class="bg-dark-bg rounded-lg p-5 border border-amber-400/30">
+                            <h5 class="font-bold text-amber-400 mb-3">🌐 Semantic Memory</h5>
+                            <p class="text-sm text-gray-300 mb-3">Knowledge facts store karna — like a personal Wikipedia. Entity relationships, facts, definitions. Knowledge graph + agent combine karo.</p>
+                            <p class="text-xs text-gray-400"><strong>Use case:</strong> "John is the CTO, reports to CEO Sarah"</p>
+                            <p class="text-xs text-gray-400"><strong>Implementation:</strong> Knowledge graph (Neo4j) + retrieval</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-6">
+                        <div class="code-block">
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            <pre><code class="language-python"># Memory Systems — Implementation Examples
+from langchain.memory import (
+    ConversationBufferMemory,
+    ConversationBufferWindowMemory,
+    ConversationSummaryMemory
+)
+from langchain_openai import ChatOpenAI
+
+llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+
+# === Buffer Memory — Sab yaad rakho (chhoti conversations ke liye) ===
+buffer_memory = ConversationBufferMemory(
+    memory_key="chat_history",
+    return_messages=True
+)
+buffer_memory.save_context(
+    {"input": "Mera naam Rahul hai"},
+    {"output": "Namaste Rahul! Kaise madad kar sakta hoon?"}
+)
+# Ab agent yaad rakhega ki user ka naam Rahul hai
+
+# === Window Memory — Last k messages (token budget manage) ===
+window_memory = ConversationBufferWindowMemory(
+    k=10,  # Sirf last 10 exchanges yaad rakho
+    memory_key="chat_history",
+    return_messages=True
+)
+
+# === Summary Memory — Purani chat summarize karo (best for long conversations) ===
+summary_memory = ConversationSummaryMemory(
+    llm=llm,  # LLM se summary generate hoga
+    memory_key="chat_history",
+    return_messages=True
+)
+# 100 messages ke baad bhi sirf 200-300 tokens ki summary rahegi!
+
+# === Long-Term Memory with Vector Store ===
+from langchain_community.vectorstores import Chroma
+from langchain_openai import OpenAIEmbeddings
+
+# User preferences store karo
+memory_store = Chroma(
+    collection_name="user_memories",
+    embedding_function=OpenAIEmbeddings(model="text-embedding-3-small")
+)
+
+# Save a memory
+from langchain.schema import Document
+memory_store.add_documents([
+    Document(page_content="User prefers Hindi language responses",
+             metadata={"type": "preference", "user": "rahul"}),
+    Document(page_content="User is a backend developer using Python",
+             metadata={"type": "profile", "user": "rahul"})
+])
+
+# Retrieve relevant memories for current context
+relevant_memories = memory_store.similarity_search(
+    "What language should I respond in?", k=2
+)</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4.4 Tool Use -->
+            <div class="fade-section mb-16">
+                <div class="dark-card bg-dark-card rounded-2xl border border-dark-border p-8 card-hover">
+                    <div class="flex items-center gap-3 mb-6">
+                        <span class="text-3xl">🔧</span>
+                        <h3 class="text-2xl md:text-3xl font-bold">4.4 Tool Use — Agent Ke Haath</h3>
+                    </div>
+
+                    <div class="bg-accent/10 border border-accent/30 rounded-xl p-4 mb-6">
+                        <p class="text-accent font-semibold">🧠 Ek senior engineer ki taraf se —</p>
+                        <p class="text-gray-300 mt-2">"Tool definitions likho aise jaise tu ek naye intern ko explain kar raha hai — clear, specific, with examples. LLM sirf tool ka name aur description padh ke decide karta hai ki kab call karna hai. Agar description vague hai, toh LLM galat tool choose karega. Main ne production mein sirf description improve karke 40% better tool selection dekha hai."</p>
+                    </div>
+
+                    <div class="prose prose-invert max-w-none space-y-4 text-gray-300 leading-relaxed">
+                        <h4 class="text-xl font-semibold text-white">Tool Calling Internally Kaise Kaam Karta Hai</h4>
+                        <p>Jab tu agent ko tools deta hai, internally yeh hota hai:</p>
+                        <ol class="list-decimal list-inside space-y-2 ml-4">
+                            <li>Tu LLM ko tool definitions bhejta hai (JSON schema — name, description, parameters)</li>
+                            <li>LLM user ki query dekh ke decide karta hai — kaunsa tool call karna hai aur kya arguments dene hain</li>
+                            <li>LLM ek structured response deta hai: {"tool": "search", "args": {"query": "..."}}</li>
+                            <li>Tera code actually tool execute karta hai (LLM khud kuch execute nahi karta!)</li>
+                            <li>Tool ka result wapas LLM ko bheja jaata hai</li>
+                            <li>LLM result dekh ke next decision leta hai — aur tool call ya final answer</li>
+                        </ol>
+                    </div>
+
+                    <div class="mt-6">
+                        <div class="code-block">
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            <pre><code class="language-python"># Tool Creation — Complete Examples
+from langchain.tools import tool, Tool
+from langchain.tools.retriever import create_retriever_tool
+from langchain_community.tools.tavily_search import TavilySearchResults
+from langchain_openai import ChatOpenAI
+
+# === RAG Tool — Vector store search ===
+rag_tool = create_retriever_tool(
+    retriever=vectorstore.as_retriever(search_kwargs={"k": 4}),
+    name="company_knowledge_base",
+    description="""Use this tool to search company internal documents.
+    This includes policies, procedures, technical docs, and guidelines.
+    Use when user asks about company-specific information.
+    Input should be a clear search query."""
+)
+
+# === Web Search Tool — External information ===
+web_search_tool = TavilySearchResults(
+    max_results=3,
+    search_depth="advanced",  # "basic" for speed, "advanced" for quality
+    description="Search the internet for current information. Use for questions about latest news, updates, or external topics not in company docs."
+)
+
+# === Custom Tool with @tool decorator ===
+@tool
+def calculate_cost(num_tokens: int, model: str = "gpt-4o-mini") -> str:
+    """Calculate the cost of LLM API call based on token count.
+    
+    Use this when user asks about pricing or cost estimation.
+    
+    Args:
+        num_tokens: Total number of tokens (input + output)
+        model: Model name - gpt-4o-mini, gpt-4o, or claude-3
+    
+    Returns:
+        Cost breakdown as a formatted string
+    """
+    # Pricing per 1M tokens (approximate)
+    pricing = {
+        "gpt-4o-mini": {"input": 0.15, "output": 0.60},
+        "gpt-4o": {"input": 2.50, "output": 10.00},
+        "claude-3": {"input": 3.00, "output": 15.00}
+    }
+    
+    if model not in pricing:
+        return f"Unknown model: {model}. Available: {list(pricing.keys())}"
+    
+    cost = (num_tokens / 1_000_000) * pricing[model]["input"]
+    return f"Model: {model}\nTokens: {num_tokens:,}\nEstimated cost: ${cost:.4f}"
+
+# === Putting Tools Together for Agent ===
+tools = [rag_tool, web_search_tool, calculate_cost]
+
+# Agent will automatically choose which tool to use based on the query:
+# "What is our leave policy?" → rag_tool (company docs)
+# "Latest Python version?" → web_search_tool (external info)
+# "How much will 10K tokens cost?" → calculate_cost (custom logic)</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 5: LANGGRAPH WORKFLOWS -->
+    <section id="langgraph" class="py-20 px-4 bg-gradient-to-b from-transparent via-highlight/5 to-transparent">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16 fade-section">
+                <h2 class="text-4xl md:text-5xl font-bold mb-4">
+                    <span class="bg-gradient-to-r from-green-400 to-highlight bg-clip-text text-transparent">LangGraph Workflows</span>
+                </h2>
+                <p class="text-gray-400 text-lg">Production Grade Agents — Graph-Based Architecture 🔄</p>
+            </div>
+
+            <!-- 5.1 LangGraph Kya Hai -->
+            <div class="fade-section mb-16">
+                <div class="dark-card bg-dark-card rounded-2xl border border-dark-border p-8 card-hover">
+                    <div class="flex items-center gap-3 mb-6">
+                        <span class="text-3xl">📊</span>
+                        <h3 class="text-2xl md:text-3xl font-bold">5.1 LangGraph Kya Hai — Core Concepts</h3>
+                    </div>
+
+                    <div class="bg-accent/10 border border-accent/30 rounded-xl p-4 mb-6">
+                        <p class="text-accent font-semibold">🧠 Ek senior engineer ki taraf se —</p>
+                        <p class="text-gray-300 mt-2">"LangGraph samajhne ke liye pehle samjho ki simple chains kyun limited hain. Chain mein A → B → C hota hai — ek direction, koi decision nahi, koi loop nahi. Real agents ko loops chahiye (retry), conditional logic chahiye (if/else), shared state chahiye (context sharing). LangGraph = graph jahan nodes functions hain aur edges decisions hain. Production agents ke liye yeh THE framework hai."</p>
+                    </div>
+
+                    <div class="prose prose-invert max-w-none space-y-4 text-gray-300 leading-relaxed">
+                        <h4 class="text-xl font-semibold text-white">Core Concepts — Deep Dive</h4>
+                        
+                        <div class="grid md:grid-cols-2 gap-6 mt-4">
+                            <div class="bg-dark-bg rounded-lg p-5 border border-accent/30">
+                                <h5 class="font-bold text-accent mb-3">📦 STATE</h5>
+                                <p class="text-sm text-gray-300">Shared dictionary jisme agent ka poora context hota hai — messages, retrieved docs, decisions, intermediate results. TypedDict se define karo. Har node state ko read karta hai, process karta hai, aur updated state return karta hai. State = agent ki "working memory".</p>
+                            </div>
+                            <div class="bg-dark-bg rounded-lg p-5 border border-highlight/30">
+                                <h5 class="font-bold text-highlight mb-3">⚙️ NODES</h5>
+                                <p class="text-sm text-gray-300">Python functions jo graph ke building blocks hain. Har node ek kaam karta hai — retrieve, grade, generate, search. Input: current state. Output: state update. Nodes ko simple aur focused rakhna chahiye — ek node ek kaam.</p>
+                            </div>
+                            <div class="bg-dark-bg rounded-lg p-5 border border-green-400/30">
+                                <h5 class="font-bold text-green-400 mb-3">↗️ EDGES</h5>
+                                <p class="text-sm text-gray-300">Nodes ke beech connections. Normal edge: hamesha A se B jao. Conditional edge: state dekh ke decide karo kahan jaana hai. Yeh woh jagah hai jahan decision-making hoti hai — "agar document relevant hai toh generate, nahi toh web search."</p>
+                            </div>
+                            <div class="bg-dark-bg rounded-lg p-5 border border-amber-400/30">
+                                <h5 class="font-bold text-amber-400 mb-3">🚀 COMPILE & RUN</h5>
+                                <p class="text-sm text-gray-300">Graph define karne ke baad compile karo (validation hoti hai), phir invoke karo input state ke saath. Graph internally state ko nodes through flow karta hai jab tak END node na aa jaaye.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6">
+                        <div class="code-block">
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            <pre><code class="language-python"># LangGraph — Core Concepts with Simple Example
+from typing import TypedDict, Annotated, List
+from langgraph.graph import StateGraph, END
+from langchain_openai import ChatOpenAI
+from langchain_core.messages import HumanMessage, AIMessage
+import operator
+
+# === STEP 1: STATE DEFINE KARO ===
+# State = shared memory jo saare nodes access karte hain
+class AgentState(TypedDict):
+    messages: Annotated[List, operator.add]  # Messages accumulate
+    question: str           # User ka original question
+    documents: List[str]    # Retrieved documents
+    generation: str         # Final generated answer
+    search_needed: bool     # Kya web search chahiye?
+
+# === STEP 2: NODES DEFINE KARO ===
+# Har node ek Python function hai jo state leta hai aur state update karta hai
+
+llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+
+def retrieve_node(state: AgentState) -> dict:
+    """Vector DB se relevant documents retrieve karo"""
+    question = state["question"]
+    docs = retriever.invoke(question)  # Your retriever
+    return {"documents": [doc.page_content for doc in docs]}
+
+def grade_node(state: AgentState) -> dict:
+    """Retrieved documents ki quality check karo"""
+    docs = state["documents"]
+    question = state["question"]
+    # Simple grading — LLM se pooch lo
+    relevant = any("relevant" in d.lower() for d in docs)  # Simplified
+    return {"search_needed": not relevant}
+
+def generate_node(state: AgentState) -> dict:
+    """Final answer generate karo"""
+    context = "\n".join(state["documents"])
+    response = llm.invoke(f"Context: {context}\n\nQuestion: {state['question']}")
+    return {"generation": response.content}
+
+def web_search_node(state: AgentState) -> dict:
+    """Web search se additional info laao"""
+    # Tavily or similar web search
+    results = "Web search results here..."
+    return {"documents": state["documents"] + [results]}
+
+# === STEP 3: CONDITIONAL EDGE ===
+def should_search(state: AgentState) -> str:
+    """Decide: generate ya web search?"""
+    if state.get("search_needed", False):
+        return "web_search"  # Web search node pe jao
+    return "generate"        # Direct generate karo
+
+# === STEP 4: GRAPH BUILD KARO ===
+workflow = StateGraph(AgentState)
+
+# Nodes add karo
+workflow.add_node("retrieve", retrieve_node)
+workflow.add_node("grade", grade_node)
+workflow.add_node("generate", generate_node)
+workflow.add_node("web_search", web_search_node)
+
+# Edges define karo
+workflow.set_entry_point("retrieve")          # Start here
+workflow.add_edge("retrieve", "grade")        # retrieve → grade (always)
+workflow.add_conditional_edges(               # grade → ? (conditional!)
+    "grade",
+    should_search,
+    {"web_search": "web_search", "generate": "generate"}
+)
+workflow.add_edge("web_search", "generate")   # web_search → generate
+workflow.add_edge("generate", END)            # generate → END
+
+# === STEP 5: COMPILE & RUN ===
+app = workflow.compile()
+
+# Invoke!
+result = app.invoke({
+    "question": "What are the latest RAG techniques?",
+    "messages": [],
+    "documents": [],
+    "generation": "",
+    "search_needed": False
+})
+print(result["generation"])</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5.2 ReAct Pattern -->
+            <div class="fade-section mb-16">
+                <div class="dark-card bg-dark-card rounded-2xl border border-dark-border p-8 card-hover">
+                    <div class="flex items-center gap-3 mb-6">
+                        <span class="text-3xl">🔄</span>
+                        <h3 class="text-2xl md:text-3xl font-bold">5.2 ReAct Pattern — Sabse Important</h3>
+                    </div>
+
+                    <div class="bg-accent/10 border border-accent/30 rounded-xl p-4 mb-6">
+                        <p class="text-accent font-semibold">🧠 Ek senior engineer ki taraf se —</p>
+                        <p class="text-gray-300 mt-2">"ReAct (Reason + Act) sabse fundamental agent pattern hai. Agar tu sirf ek pattern seekhe poori life mein, toh yeh seekh. Har modern agent framework internally ReAct hi use karta hai. Idea simple hai: Think → Act → Observe → Repeat. Jab tak task complete na ho."</p>
+                    </div>
+
+                    <div class="prose prose-invert max-w-none space-y-4 text-gray-300 leading-relaxed">
+                        <p><strong class="text-highlight">ReAct = Reasoning + Acting.</strong> 2022 mein Google ka paper tha jo kehta hai: Agar LLM ko sirf act karne bolo (tools call karo) without thinking — toh galat tools call karega. Agar sirf think karne bolo without acting — toh hallucinate karega. Dono combine karo — think THEN act THEN observe THEN think again. Yeh iterative loop agent ko powerful banata hai.</p>
+                    </div>
+
+                    <div class="mermaid mt-6 mb-6">
+flowchart TD
+    START(["👤 User Query"]) --> THINK["💭 Thought: What do I need to do?"]
+    THINK --> ACT["⚡ Action: Call a tool"]
+    ACT --> OBS["👁️ Observation: Tool result"]
+    OBS --> THINK2{"🤔 Is task complete?"}
+    THINK2 -->|"No, need more info"| THINK
+    THINK2 -->|"Yes, have enough!"| ANS["✅ Final Answer"]
+                    </div>
+
+                    <div class="mt-6">
+                        <div class="code-block">
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            <pre><code class="language-python"># ReAct Agent — Full LangGraph Implementation
+from typing import TypedDict, Annotated, Sequence
+from langgraph.graph import StateGraph, END
+from langgraph.prebuilt import ToolNode
+from langchain_openai import ChatOpenAI
+from langchain_core.messages import BaseMessage, HumanMessage, ToolMessage
+from langchain_community.tools.tavily_search import TavilySearchResults
+from langchain.tools import tool
+import operator
+
+# === Tools Define Karo ===
+search_tool = TavilySearchResults(max_results=3)
+
+@tool
+def calculator(expression: str) -> str:
+    """Calculate a mathematical expression. Input: math expression like '2+2' or '100*0.15'"""
+    try:
+        return str(eval(expression))  # Production mein safe eval use karna!
+    except:
+        return "Error: Could not calculate"
+
+tools = [search_tool, calculator]
+
+# === State Definition ===
+class ReActState(TypedDict):
+    messages: Annotated[Sequence[BaseMessage], operator.add]
+
+# === LLM with Tools ===
+llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+llm_with_tools = llm.bind_tools(tools)  # LLM ko tools ke baare mein batao
+
+# === Node Functions ===
+def call_model(state: ReActState) -> dict:
+    """LLM call karo — woh decide karega tool use karna hai ya final answer dena hai"""
+    messages = state["messages"]
+    response = llm_with_tools.invoke(messages)
+    return {"messages": [response]}
+
+def should_continue(state: ReActState) -> str:
+    """Check: LLM ne tool call kiya ya final answer diya?"""
+    last_message = state["messages"][-1]
+    # Agar tool_calls hain toh tools execute karo
+    if last_message.tool_calls:
+        return "tools"
+    # Nahi toh final answer hai — END
+    return "end"
+
+# === Graph Build ===
+workflow = StateGraph(ReActState)
+
+# Nodes
+workflow.add_node("agent", call_model)           # LLM thinks + decides
+workflow.add_node("tools", ToolNode(tools))       # Tools execute
+
+# Edges
+workflow.set_entry_point("agent")
+workflow.add_conditional_edges(
+    "agent",
+    should_continue,
+    {"tools": "tools", "end": END}  # Tool call? → execute. No? → done.
+)
+workflow.add_edge("tools", "agent")  # Tool result wapas agent ko (LOOP!)
+
+# Compile
+react_agent = workflow.compile()
+
+# === RUN IT! ===
+# Example: Multi-step reasoning
+result = react_agent.invoke({
+    "messages": [HumanMessage(content="What is the population of India and what is 15% of it?")]
+})
+
+# Agent internally:
+# Thought: I need to find India's population first
+# Action: search("India population 2024")
+# Observation: "India's population is approximately 1.44 billion"
+# Thought: Now I need to calculate 15% of 1.44 billion
+# Action: calculator("1440000000 * 0.15")
+# Observation: "216000000"
+# Final Answer: "India's population is ~1.44 billion, and 15% is 216 million"
+
+print(result["messages"][-1].content)</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5.3 Plan and Execute -->
+            <div class="fade-section mb-16">
+                <div class="dark-card bg-dark-card rounded-2xl border border-dark-border p-8 card-hover">
+                    <div class="flex items-center gap-3 mb-6">
+                        <span class="text-3xl">📋</span>
+                        <h3 class="text-2xl md:text-3xl font-bold">5.3 Plan and Execute Pattern</h3>
+                    </div>
+
+                    <div class="prose prose-invert max-w-none space-y-4 text-gray-300 leading-relaxed">
+                        <p>ReAct mein agent har step pe decide karta hai. Plan-and-Execute mein pehle POORA plan banate hain, phir ek ek step execute karte hain. Agar koi step fail ho ya naya information mile, toh REPLAN karte hain. Complex multi-step tasks ke liye yeh better hai ReAct se — kyunki agent "big picture" pehle dekhta hai.</p>
+                        <p class="bg-dark-bg rounded-lg p-4 border-l-4 border-highlight italic">Jaise tu road trip plan karta hai — pehle route decide karo (Delhi → Agra → Jaipur → Udaipur), phir ek ek step execute karo. Agar Agra mein road block hai toh replan karo (via Mathura). Tu har km pe plan nahi change karta — high-level plan pehle bana, execute step by step.</p>
+                    </div>
+
+                    <div class="mermaid mt-6 mb-4">
+flowchart TD
+    Q["User Task"] --> PLAN["🗺️ Planner: Create step-by-step plan"]
+    PLAN --> S1["Step 1: Execute"]
+    S1 --> S2["Step 2: Execute"]
+    S2 --> CHECK{"New info? Step failed?"}
+    CHECK -->|"Yes"| REPLAN["🔄 Replanner: Update plan"]
+    CHECK -->|"No"| S3["Step 3: Execute"]
+    REPLAN --> S2B["Continue with updated plan"]
+    S3 --> DONE["✅ Final Result"]
+                    </div>
+
+                    <div class="code-block mt-4">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><code class="language-python"># Plan and Execute — Simplified LangGraph Implementation
+from typing import TypedDict, List
+from langgraph.graph import StateGraph, END
+from langchain_openai import ChatOpenAI
+from langchain.prompts import ChatPromptTemplate
+
+llm = ChatOpenAI(model="gpt-4o", temperature=0)  # Better planner with GPT-4
+
+class PlanExecuteState(TypedDict):
+    task: str
+    plan: List[str]        # List of steps
+    current_step: int      # Which step are we on
+    results: List[str]     # Results of each step
+    final_answer: str
+
+def planner(state: PlanExecuteState) -> dict:
+    """Task ko steps mein todo"""
+    plan_prompt = f"""Break this task into 3-5 clear, executable steps:
+    Task: {state['task']}
+    
+    Return numbered steps, one per line."""
+    response = llm.invoke(plan_prompt)
+    steps = [s.strip() for s in response.content.split("\n") if s.strip()]
+    return {"plan": steps, "current_step": 0}
+
+def executor(state: PlanExecuteState) -> dict:
+    """Current step execute karo"""
+    step = state["plan"][state["current_step"]]
+    context = "\n".join(state["results"]) if state["results"] else "No prior results"
+    
+    exec_prompt = f"""Execute this step:
+    Step: {step}
+    Prior results: {context}
+    
+    Provide the result:"""
+    response = llm.invoke(exec_prompt)
+    
+    new_results = state["results"] + [response.content]
+    return {"results": new_results, "current_step": state["current_step"] + 1}
+
+def should_continue(state: PlanExecuteState) -> str:
+    if state["current_step"] >= len(state["plan"]):
+        return "finish"
+    return "execute"
+
+def finish(state: PlanExecuteState) -> dict:
+    return {"final_answer": state["results"][-1]}
+
+# Build graph
+workflow = StateGraph(PlanExecuteState)
+workflow.add_node("planner", planner)
+workflow.add_node("executor", executor)
+workflow.add_node("finish", finish)
+
+workflow.set_entry_point("planner")
+workflow.add_edge("planner", "executor")
+workflow.add_conditional_edges("executor", should_continue,
+    {"execute": "executor", "finish": "finish"})
+workflow.add_edge("finish", END)
+
+app = workflow.compile()
+result = app.invoke({"task": "Compare RAG vs Fine-tuning for a customer support chatbot",
+    "plan": [], "current_step": 0, "results": [], "final_answer": ""})</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5.4 Multi-Agent Supervisor -->
+            <div class="fade-section mb-16">
+                <div class="dark-card bg-dark-card rounded-2xl border border-dark-border p-8 card-hover">
+                    <div class="flex items-center gap-3 mb-6">
+                        <span class="text-3xl">👥</span>
+                        <h3 class="text-2xl md:text-3xl font-bold">5.4 Multi-Agent Supervisor Pattern</h3>
+                    </div>
+
+                    <div class="bg-accent/10 border border-accent/30 rounded-xl p-4 mb-6">
+                        <p class="text-accent font-semibold">🧠 Ek senior engineer ki taraf se —</p>
+                        <p class="text-gray-300 mt-2">"Jab tera task ek agent ke scope se bada ho jaaye — multiple domains of expertise chahiye — tab multi-agent use kar. Ek supervisor agent tasks route karta hai specialized workers ko. Jaise ek tech lead apni team mein frontend dev ko UI task deta hai, backend dev ko API task, aur DevOps ko deployment. Supervisor = Tech Lead."</p>
+                    </div>
+
+                    <div class="mermaid mb-6">
+flowchart TD
+    USER["👤 User"] --> SUP["🎯 Supervisor Agent"]
+    SUP --> D{"Task Type?"}
+    D -->|"Research needed"| RA["🔍 Research Agent\n(Web Search Tool)"]
+    D -->|"Code needed"| CA["💻 Code Agent\n(Code Executor)"]
+    D -->|"Docs needed"| RAGA["📚 RAG Agent\n(Retrieval Tool)"]
+    RA --> SUP
+    CA --> SUP
+    RAGA --> SUP
+    SUP --> ANS["📤 Final Answer to User"]
+                    </div>
+
+                    <div class="mt-6">
+                        <div class="code-block">
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            <pre><code class="language-python"># Multi-Agent Supervisor — LangGraph Implementation
+from typing import TypedDict, Annotated, Sequence, Literal
+from langgraph.graph import StateGraph, END
+from langchain_openai import ChatOpenAI
+from langchain_core.messages import BaseMessage, HumanMessage
+import operator
+
+# === State ===
+class MultiAgentState(TypedDict):
+    messages: Annotated[Sequence[BaseMessage], operator.add]
+    next_agent: str  # Which agent should handle this?
+
+# === Supervisor — Routes tasks to appropriate agent ===
+llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+
+def supervisor(state: MultiAgentState) -> dict:
+    """Supervisor decides which agent should handle the task"""
+    messages = state["messages"]
+    last_msg = messages[-1].content if messages else ""
+    
+    route_prompt = f"""You are a supervisor routing tasks to specialized agents.
+    Based on the user message, choose ONE agent:
+    - "researcher": for questions needing web search or current info
+    - "coder": for code writing, debugging, or technical implementation
+    - "rag_agent": for questions about internal documents/knowledge base
+    - "FINISH": if the task is complete
+    
+    User message: {last_msg}
+    
+    Choose agent (one word):"""
+    
+    response = llm.invoke(route_prompt)
+    next_agent = response.content.strip().lower()
+    
+    if next_agent not in ["researcher", "coder", "rag_agent"]:
+        next_agent = "FINISH"
+    
+    return {"next_agent": next_agent}
+
+# === Worker Agents ===
+def researcher(state: MultiAgentState) -> dict:
+    """Research agent — web search expert"""
+    messages = state["messages"]
+    query = messages[-1].content
+    # In real code: use Tavily/Google search here
+    response = llm.invoke(f"Research this topic and provide detailed findings: {query}")
+    return {"messages": [HumanMessage(content=f"[Research Results]: {response.content}")]}
+
+def coder(state: MultiAgentState) -> dict:
+    """Code agent — programming expert"""
+    messages = state["messages"]
+    query = messages[-1].content
+    response = llm.invoke(f"Write clean, well-commented code for: {query}")
+    return {"messages": [HumanMessage(content=f"[Code Output]: {response.content}")]}
+
+def rag_agent(state: MultiAgentState) -> dict:
+    """RAG agent — internal docs expert"""
+    messages = state["messages"]
+    query = messages[-1].content
+    # In real code: use retriever here
+    response = llm.invoke(f"Based on company docs, answer: {query}")
+    return {"messages": [HumanMessage(content=f"[RAG Results]: {response.content}")]}
+
+# === Route Function ===
+def route_to_agent(state: MultiAgentState) -> str:
+    return state["next_agent"] if state["next_agent"] != "FINISH" else "end"
+
+# === Build Multi-Agent Graph ===
+workflow = StateGraph(MultiAgentState)
+
+workflow.add_node("supervisor", supervisor)
+workflow.add_node("researcher", researcher)
+workflow.add_node("coder", coder)
+workflow.add_node("rag_agent", rag_agent)
+
+workflow.set_entry_point("supervisor")
+workflow.add_conditional_edges("supervisor", route_to_agent, {
+    "researcher": "researcher",
+    "coder": "coder",
+    "rag_agent": "rag_agent",
+    "end": END
+})
+# After worker finishes, go back to supervisor for potential next routing
+workflow.add_edge("researcher", "supervisor")
+workflow.add_edge("coder", "supervisor")
+workflow.add_edge("rag_agent", "supervisor")
+
+multi_agent = workflow.compile()
+
+# Run
+result = multi_agent.invoke({
+    "messages": [HumanMessage(content="Search latest RAG papers and write Python code to implement CRAG")],
+    "next_agent": ""
+})</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5.5 CRAG with LangGraph -->
+            <div class="fade-section mb-16">
+                <div class="dark-card bg-dark-card rounded-2xl border border-dark-border p-8 card-hover">
+                    <div class="flex items-center gap-3 mb-6">
+                        <span class="text-3xl">🔄</span>
+                        <h3 class="text-2xl md:text-3xl font-bold">5.5 CRAG with LangGraph — Full Implementation</h3>
+                    </div>
+
+                    <div class="prose prose-invert max-w-none space-y-4 text-gray-300 leading-relaxed mb-6">
+                        <p>Ab CRAG (Corrective RAG) ko LangGraph mein properly implement karte hain. Yeh production-ready pattern hai — retrieve karo, grade karo, agar relevant nahi toh web search se supplement karo, query transform karo agar needed ho.</p>
+                    </div>
+
+                    <div class="mermaid mb-6">
+flowchart TD
+    START(["Start"]) --> RET["📚 Retrieve Documents"]
+    RET --> GRADE["📝 Grade Documents"]
+    GRADE --> CHECK{"All Relevant?"}
+    CHECK -->|"Yes"| GEN["🤖 Generate Answer"]
+    CHECK -->|"Partially"| WEB["🌐 Web Search + Docs"]
+    CHECK -->|"No"| TRANSFORM["🔄 Transform Query"]
+    WEB --> GEN
+    TRANSFORM --> WEBSEARCH["🌐 Web Search (new query)"]
+    WEBSEARCH --> GEN
+    GEN --> DONE(["End"])
+                    </div>
+
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><code class="language-python"># CRAG — Complete LangGraph Implementation
+from typing import TypedDict, List
+from langgraph.graph import StateGraph, END
+from langchain_openai import ChatOpenAI
+from langchain.prompts import ChatPromptTemplate
+
+llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+
+class CRAGState(TypedDict):
+    question: str
+    documents: List[str]
+    web_results: str
+    generation: str
+    doc_grades: List[str]  # "relevant" or "irrelevant"
+
+# === NODE 1: Retrieve ===
+def retrieve(state: CRAGState) -> dict:
+    question = state["question"]
+    docs = retriever.invoke(question)  # Your vector store retriever
+    return {"documents": [doc.page_content for doc in docs]}
+
+# === NODE 2: Grade Documents ===
+def grade_documents(state: CRAGState) -> dict:
+    question = state["question"]
+    docs = state["documents"]
+    grades = []
+    
+    grade_prompt = ChatPromptTemplate.from_template(
+        """Kya yeh document user ke question ke liye relevant hai?
+        Document: {document}
+        Question: {question}
+        Answer strictly 'yes' or 'no':"""
+    )
+    
+    for doc in docs:
+        result = llm.invoke(grade_prompt.format(document=doc, question=question))
+        grades.append("relevant" if "yes" in result.content.lower() else "irrelevant")
+    
+    return {"doc_grades": grades}
+
+# === NODE 3: Web Search ===
+def web_search(state: CRAGState) -> dict:
+    question = state["question"]
+    # Use Tavily or any search API
+    from langchain_community.tools.tavily_search import TavilySearchResults
+    search = TavilySearchResults(max_results=3)
+    results = search.invoke(question)
+    web_content = "\n".join([r["content"] for r in results])
+    return {"web_results": web_content}
+
+# === NODE 4: Transform Query ===
+def transform_query(state: CRAGState) -> dict:
+    question = state["question"]
+    transform_prompt = f"""Yeh question ka better version likho jo search mein better results laaye:
+    Original: {question}
+    Improved query:"""
+    response = llm.invoke(transform_prompt)
+    return {"question": response.content.strip()}
+
+# === NODE 5: Generate ===
+def generate(state: CRAGState) -> dict:
+    question = state["question"]
+    # Relevant docs + web results combine karo
+    relevant_docs = [doc for doc, grade in zip(state["documents"], state["doc_grades"]) 
+                     if grade == "relevant"]
+    
+    context = "\n".join(relevant_docs)
+    if state.get("web_results"):
+        context += "\n\nWeb Results:\n" + state["web_results"]
+    
+    gen_prompt = f"""Answer the question based on the context below.
+    Context: {context}
+    Question: {question}
+    Answer:"""
+    response = llm.invoke(gen_prompt)
+    return {"generation": response.content}
+
+# === CONDITIONAL EDGE: Decide path based on grades ===
+def decide_path(state: CRAGState) -> str:
+    grades = state["doc_grades"]
+    relevant_count = grades.count("relevant")
+    total = len(grades)
+    
+    if relevant_count == total:
+        return "generate"           # Sab relevant — directly generate
+    elif relevant_count > 0:
+        return "web_search"         # Partially relevant — supplement with web
+    else:
+        return "transform_query"    # Nothing relevant — rewrite and search
+
+# === BUILD GRAPH ===
+crag_workflow = StateGraph(CRAGState)
+
+crag_workflow.add_node("retrieve", retrieve)
+crag_workflow.add_node("grade_documents", grade_documents)
+crag_workflow.add_node("web_search", web_search)
+crag_workflow.add_node("transform_query", transform_query)
+crag_workflow.add_node("generate", generate)
+
+crag_workflow.set_entry_point("retrieve")
+crag_workflow.add_edge("retrieve", "grade_documents")
+crag_workflow.add_conditional_edges("grade_documents", decide_path, {
+    "generate": "generate",
+    "web_search": "web_search",
+    "transform_query": "transform_query"
+})
+crag_workflow.add_edge("web_search", "generate")
+crag_workflow.add_edge("transform_query", "web_search")
+crag_workflow.add_edge("generate", END)
+
+crag_app = crag_workflow.compile()
+
+# RUN!
+result = crag_app.invoke({
+    "question": "What are the latest advances in RAG systems?",
+    "documents": [], "web_results": "", "generation": "", "doc_grades": []
+})
+print(result["generation"])</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5.6 Self-RAG with LangGraph -->
+            <div class="fade-section mb-16">
+                <div class="dark-card bg-dark-card rounded-2xl border border-dark-border p-8 card-hover">
+                    <div class="flex items-center gap-3 mb-6">
+                        <span class="text-3xl">🪞</span>
+                        <h3 class="text-2xl md:text-3xl font-bold">5.6 Self-RAG with LangGraph — Self-Correcting Agent</h3>
+                    </div>
+
+                    <div class="bg-accent/10 border border-accent/30 rounded-xl p-4 mb-6">
+                        <p class="text-accent font-semibold">🧠 Ek senior engineer ki taraf se —</p>
+                        <p class="text-gray-300 mt-2">"Self-RAG sabse sophisticated RAG pattern hai. Agent har step pe khud ko evaluate karta hai — kya retrieval chahiye? Jo mila woh relevant hai? Mera answer faithful hai source documents ke? Answer useful hai user ke liye? Agar kisi step pe 'no' toh woh retry karta hai. Yeh pattern critical applications ke liye hai — medical, legal, financial."</p>
+                    </div>
+
+                    <div class="mermaid mb-6">
+flowchart TD
+    Q(["User Query"]) --> ROUTE{"Route Question\n(Need retrieval?)"}
+    ROUTE -->|"Yes, factual question"| RET["Retrieve Documents"]
+    ROUTE -->|"No, general/opinion"| GEN_DIRECT["Generate Directly"]
+    RET --> GRADE_DOC{"Grade Documents\n(Are they relevant?)"}
+    GRADE_DOC -->|"Yes, relevant"| GEN["Generate with Context"]
+    GRADE_DOC -->|"No, irrelevant"| TRANSFORM["Transform Query"]
+    TRANSFORM --> RET
+    GEN --> GRADE_ANS{"Grade Answer\n(Faithful to docs?)"}
+    GRADE_ANS -->|"Yes, faithful"| USEFUL{"Is Answer Useful?"}
+    GRADE_ANS -->|"No, hallucinating"| GEN
+    USEFUL -->|"Yes!"| OUTPUT(["Final Answer"])
+    USEFUL -->|"No"| TRANSFORM
+    GEN_DIRECT --> OUTPUT
+                    </div>
+
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><code class="language-python"># Self-RAG — Full LangGraph Implementation with Self-Correction
+from typing import TypedDict, List, Optional
+from langgraph.graph import StateGraph, END
+from langchain_openai import ChatOpenAI
+from langchain.prompts import ChatPromptTemplate
+
+llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+
+class SelfRAGState(TypedDict):
+    question: str
+    documents: List[str]
+    generation: str
+    retries: int           # Kitni baar retry kiya
+    max_retries: int       # Max retries allowed
+
+# === NODE: Route Question ===
+def route_question(state: SelfRAGState) -> str:
+    """Decide: kya retrieval chahiye ya direct answer de sakte hain?"""
+    question = state["question"]
+    route_prompt = f"""Decide if this question needs document retrieval or can be answered directly.
+    - "retrieve": factual questions about specific topics
+    - "direct": general opinions, greetings, simple math
+    
+    Question: {question}
+    Decision (retrieve/direct):"""
+    
+    response = llm.invoke(route_prompt)
+    return "retrieve" if "retrieve" in response.content.lower() else "direct"
+
+# === NODE: Retrieve ===
+def retrieve(state: SelfRAGState) -> dict:
+    docs = retriever.invoke(state["question"])
+    return {"documents": [doc.page_content for doc in docs]}
+
+# === NODE: Grade Documents ===
+def grade_documents(state: SelfRAGState) -> str:
+    """Check: retrieved docs relevant hain?"""
+    question = state["question"]
+    relevant_count = 0
+    
+    for doc in state["documents"]:
+        grade_prompt = f"Is this document relevant to '{question}'? Document: {doc[:200]}. Answer yes/no:"
+        response = llm.invoke(grade_prompt)
+        if "yes" in response.content.lower():
+            relevant_count += 1
+    
+    # Agar majority relevant hai toh generate, nahi toh transform
+    return "generate" if relevant_count >= len(state["documents"]) // 2 else "transform"
+
+# === NODE: Generate ===
+def generate(state: SelfRAGState) -> dict:
+    context = "\n".join(state["documents"])
+    gen_prompt = f"Based ONLY on this context, answer the question.\nContext: {context}\nQuestion: {state['question']}\nAnswer:"
+    response = llm.invoke(gen_prompt)
+    return {"generation": response.content}
+
+# === NODE: Grade Generation ===
+def grade_generation(state: SelfRAGState) -> str:
+    """Check: answer faithful hai documents ke? Aur useful hai?"""
+    # Check faithfulness (ISSUP)
+    faith_prompt = f"""Is this answer supported by the documents?
+    Documents: {' '.join(state['documents'][:2])}
+    Answer: {state['generation']}
+    Supported (yes/no):"""
+    faith_response = llm.invoke(faith_prompt)
+    
+    if "no" in faith_response.content.lower():
+        return "not_faithful"  # Hallucinating! Retry.
+    
+    # Check usefulness (ISUSE) 
+    useful_prompt = f"""Does this answer actually help with the question?
+    Question: {state['question']}
+    Answer: {state['generation']}
+    Useful (yes/no):"""
+    useful_response = llm.invoke(useful_prompt)
+    
+    if "no" in useful_response.content.lower():
+        return "not_useful"  # Not helpful! Transform and retry.
+    
+    return "useful"  # All good!
+
+# === NODE: Transform Query ===
+def transform_query(state: SelfRAGState) -> dict:
+    transform_prompt = f"Rewrite this query for better search results: {state['question']}"
+    response = llm.invoke(transform_prompt)
+    return {"question": response.content.strip(), "retries": state["retries"] + 1}
+
+# === NODE: Direct Generate ===
+def generate_direct(state: SelfRAGState) -> dict:
+    response = llm.invoke(state["question"])
+    return {"generation": response.content}
+
+# === CONDITIONAL: After grading generation ===
+def after_grade_generation(state: SelfRAGState) -> str:
+    grade = grade_generation(state)
+    if grade == "useful":
+        return "end"
+    elif state["retries"] >= state.get("max_retries", 3):
+        return "end"  # Max retries reached, give what we have
+    else:
+        return "transform"
+
+# === BUILD SELF-RAG GRAPH ===
+self_rag = StateGraph(SelfRAGState)
+
+self_rag.add_node("retrieve", retrieve)
+self_rag.add_node("generate", generate)
+self_rag.add_node("generate_direct", generate_direct)
+self_rag.add_node("transform_query", transform_query)
+
+# Entry point based on routing
+self_rag.set_conditional_entry_point(route_question, {
+    "retrieve": "retrieve",
+    "direct": "generate_direct"
+})
+
+# After retrieve -> grade docs -> generate or transform
+self_rag.add_conditional_edges("retrieve", grade_documents, {
+    "generate": "generate",
+    "transform": "transform_query"
+})
+
+# After generate -> grade answer -> end or transform
+self_rag.add_conditional_edges("generate", after_grade_generation, {
+    "end": END,
+    "transform": "transform_query"
+})
+
+self_rag.add_edge("generate_direct", END)
+self_rag.add_edge("transform_query", "retrieve")  # Retry loop!
+
+self_rag_app = self_rag.compile()
+
+# Run with self-correction!
+result = self_rag_app.invoke({
+    "question": "What is our company's remote work policy?",
+    "documents": [], "generation": "", "retries": 0, "max_retries": 3
+})</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 6: CHEATSHEET -->
+    <section id="cheatsheet" class="py-20 px-4">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16 fade-section">
+                <h2 class="text-4xl md:text-5xl font-bold mb-4">
+                    <span class="bg-gradient-to-r from-amber-400 to-pink-400 bg-clip-text text-transparent">Quick Cheatsheet</span>
+                </h2>
+                <p class="text-gray-400 text-lg">Print Karo, Desk Pe Chipkao 📌</p>
+                <button onclick="window.print()" class="mt-4 px-6 py-2 bg-accent hover:bg-accent/80 rounded-lg text-sm font-medium transition">
+                    🖨️ Print This Cheatsheet
+                </button>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8 fade-section">
+                <!-- LEFT: RAG Cheatsheet -->
+                <div class="dark-card bg-dark-card rounded-2xl border border-dark-border p-6">
+                    <h3 class="text-xl font-bold text-accent mb-6 text-center">📚 RAG Cheatsheet</h3>
+                    
+                    <div class="space-y-4">
+                        <div class="bg-dark-bg rounded-lg p-4 border border-dark-border">
+                            <h4 class="font-bold text-highlight text-sm mb-2">RAG Pipeline</h4>
+                            <p class="text-xs text-gray-400">Load → Chunk → Embed → Store → Retrieve → Generate</p>
+                        </div>
+                        
+                        <div class="bg-dark-bg rounded-lg p-4 border border-dark-border">
+                            <h4 class="font-bold text-highlight text-sm mb-2">Chunk Size Quick Reference</h4>
+                            <div class="text-xs text-gray-400 space-y-1">
+                                <p>• Factoid Q&A: 128-256 tokens</p>
+                                <p>• General RAG: 256-512 tokens</p>
+                                <p>• Complex Analysis: 512-1024 tokens</p>
+                                <p>• Always use 10-20% overlap</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-dark-bg rounded-lg p-4 border border-dark-border">
+                            <h4 class="font-bold text-highlight text-sm mb-2">Retrieval Techniques — When to Use</h4>
+                            <div class="text-xs text-gray-400 space-y-1">
+                                <p>• <strong class="text-white">Similarity:</strong> Default, simple use cases</p>
+                                <p>• <strong class="text-white">MMR:</strong> Need diverse results</p>
+                                <p>• <strong class="text-white">Hybrid:</strong> Technical docs, exact terms</p>
+                                <p>• <strong class="text-white">Multi-Query:</strong> Broad coverage needed</p>
+                                <p>• <strong class="text-white">Parent Doc:</strong> Long documents</p>
+                                <p>• <strong class="text-white">Re-ranking:</strong> High accuracy critical</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-dark-bg rounded-lg p-4 border border-dark-border">
+                            <h4 class="font-bold text-highlight text-sm mb-2">Advanced Patterns Decision</h4>
+                            <div class="text-xs text-gray-400 space-y-1">
+                                <p>• <strong class="text-white">RAG Fusion:</strong> Better recall needed</p>
+                                <p>• <strong class="text-white">HyDE:</strong> Short/vague queries</p>
+                                <p>• <strong class="text-white">CRAG:</strong> Need fallback to web</p>
+                                <p>• <strong class="text-white">Self-RAG:</strong> Critical accuracy (medical/legal)</p>
+                                <p>• <strong class="text-white">Graph RAG:</strong> Multi-hop reasoning</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-dark-bg rounded-lg p-4 border border-dark-border">
+                            <h4 class="font-bold text-highlight text-sm mb-2">Key LangChain Classes</h4>
+                            <div class="text-xs text-gray-400 space-y-1 font-mono">
+                                <p>RecursiveCharacterTextSplitter — smart chunking</p>
+                                <p>OpenAIEmbeddings — text to vectors</p>
+                                <p>Chroma/FAISS/Qdrant — vector stores</p>
+                                <p>RetrievalQA — RAG chain</p>
+                                <p>EnsembleRetriever — hybrid search</p>
+                                <p>ParentDocumentRetriever — dual-size chunks</p>
+                                <p>ContextualCompressionRetriever — noise removal</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RIGHT: Agentic AI Cheatsheet -->
+                <div class="dark-card bg-dark-card rounded-2xl border border-dark-border p-6">
+                    <h3 class="text-xl font-bold text-highlight mb-6 text-center">🤖 Agentic AI Cheatsheet</h3>
+                    
+                    <div class="space-y-4">
+                        <div class="bg-dark-bg rounded-lg p-4 border border-dark-border">
+                            <h4 class="font-bold text-accent text-sm mb-2">Agent Components</h4>
+                            <p class="text-xs text-gray-400">Brain (LLM) + Tools (Actions) + Memory (State) + Planning (Strategy) + Observation (Feedback)</p>
+                        </div>
+
+                        <div class="bg-dark-bg rounded-lg p-4 border border-dark-border">
+                            <h4 class="font-bold text-accent text-sm mb-2">Memory Types</h4>
+                            <div class="text-xs text-gray-400 space-y-1">
+                                <p>• <strong class="text-white">Buffer:</strong> Full history (small chats)</p>
+                                <p>• <strong class="text-white">Window:</strong> Last K messages (medium chats)</p>
+                                <p>• <strong class="text-white">Summary:</strong> Compressed history (long chats)</p>
+                                <p>• <strong class="text-white">Vector:</strong> Long-term across sessions</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-dark-bg rounded-lg p-4 border border-dark-border">
+                            <h4 class="font-bold text-accent text-sm mb-2">LangGraph Core Concepts</h4>
+                            <div class="text-xs text-gray-400 space-y-1">
+                                <p>• <strong class="text-white">State:</strong> TypedDict — shared context</p>
+                                <p>• <strong class="text-white">Nodes:</strong> Functions — do the work</p>
+                                <p>• <strong class="text-white">Edges:</strong> Connections — flow control</p>
+                                <p>• <strong class="text-white">Conditional Edges:</strong> Decisions — if/else</p>
+                                <p>• <strong class="text-white">Entry/END:</strong> Start and stop points</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-dark-bg rounded-lg p-4 border border-dark-border">
+                            <h4 class="font-bold text-accent text-sm mb-2">Workflow Patterns — When to Use</h4>
+                            <div class="text-xs text-gray-400 space-y-1">
+                                <p>• <strong class="text-white">ReAct:</strong> General agent tasks, tool use</p>
+                                <p>• <strong class="text-white">Plan & Execute:</strong> Complex multi-step tasks</p>
+                                <p>• <strong class="text-white">Supervisor:</strong> Multiple domains/experts</p>
+                                <p>• <strong class="text-white">CRAG:</strong> RAG with quality control</p>
+                                <p>• <strong class="text-white">Self-RAG:</strong> Self-correcting systems</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-dark-bg rounded-lg p-4 border border-dark-border">
+                            <h4 class="font-bold text-accent text-sm mb-2">Key LangGraph Classes</h4>
+                            <div class="text-xs text-gray-400 space-y-1 font-mono">
+                                <p>StateGraph — graph builder</p>
+                                <p>END — terminal node</p>
+                                <p>ToolNode — auto tool execution</p>
+                                <p>add_conditional_edges — routing</p>
+                                <p>compile() — finalize graph</p>
+                                <p>invoke() — run the agent</p>
+                                <p>stream() — streaming output</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-dark-bg rounded-lg p-4 border border-dark-border">
+                            <h4 class="font-bold text-accent text-sm mb-2">Production Tips</h4>
+                            <div class="text-xs text-gray-400 space-y-1">
+                                <p>• Temperature=0 for deterministic agents</p>
+                                <p>• Always set max retries/iterations</p>
+                                <p>• Log every tool call for debugging</p>
+                                <p>• Use streaming for better UX</p>
+                                <p>• Test with edge cases before deploy</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-12 px-4 border-t border-dark-border">
+        <div class="max-w-6xl mx-auto text-center">
+            <p class="text-gray-400 text-sm">Built with ❤️ by a Senior RAG Engineer — for the next generation of AI engineers</p>
+            <p class="text-gray-500 text-xs mt-2">Hinglish mein, pyaar se, chai ke saath ☕</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    
+    <script>
+        // === MERMAID INIT ===
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'dark',
+            themeVariables: {
+                primaryColor: '#6366f1',
+                primaryTextColor: '#e2e8f0',
+                primaryBorderColor: '#6366f1',
+                lineColor: '#6366f1',
+                secondaryColor: '#22d3ee',
+                tertiaryColor: '#12122a',
+                background: '#0a0a1a',
+                mainBkg: '#12122a',
+                nodeBorder: '#6366f1',
+                clusterBkg: '#12122a',
+                edgeLabelBackground: '#12122a',
+                fontFamily: 'Inter, sans-serif'
+            },
+            flowchart: { curve: 'basis', padding: 15 }
+        });
+
+        // === SCROLL PROGRESS BAR ===
+        window.addEventListener('scroll', () => {
+            const scrollTop = document.documentElement.scrollTop;
+            const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const progress = (scrollTop / scrollHeight) * 100;
+            document.getElementById('progress-bar').style.width = progress + '%';
+        });
+
+        // === INTERSECTION OBSERVER — Fade In on Scroll ===
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+        document.querySelectorAll('.fade-section').forEach(el => observer.observe(el));
+
+        // === DARK/LIGHT MODE TOGGLE ===
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+        let isDark = true;
+
+        themeToggle.addEventListener('click', () => {
+            isDark = !isDark;
+            document.documentElement.classList.toggle('dark', isDark);
+            document.documentElement.classList.toggle('light', !isDark);
+            themeIcon.textContent = isDark ? '🌙' : '☀️';
+            
+            // Update body bg
+            document.body.style.background = isDark ? '#0a0a1a' : '#f8fafc';
+            document.body.style.color = isDark ? '#e2e8f0' : '#1e293b';
+        });
+
+        // === MOBILE MENU ===
+        document.getElementById('mobile-menu-btn').addEventListener('click', () => {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        });
+
+        // Close mobile menu on link click
+        document.querySelectorAll('#mobile-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                document.getElementById('mobile-menu').classList.add('hidden');
+            });
+        });
+
+        // === TYPING ANIMATION ===
+        const typingTexts = [
+            "Vector DB kya hota hai aur kyun zaroori hai...",
+            "Chunking strategy galat ho toh kya hoga...",
+            "Agent aur RAG mein kya fark hai...",
+            "LangGraph se production system kaise banaate hain...",
+            "Embeddings internally kaise kaam karte hain...",
+            "Self-RAG se hallucination kaise rokein..."
+        ];
+        
+        let textIndex = 0;
+        let charIndex = 0;
+        let isDeleting = false;
+        const typingElement = document.getElementById('typing-text');
+
+        function typeWriter() {
+            const currentText = typingTexts[textIndex];
+            
+            if (!isDeleting) {
+                typingElement.textContent = currentText.substring(0, charIndex + 1);
+                charIndex++;
+                
+                if (charIndex === currentText.length) {
+                    isDeleting = true;
+                    setTimeout(typeWriter, 2000); // Pause at end
+                    return;
+                }
+            } else {
+                typingElement.textContent = currentText.substring(0, charIndex - 1);
+                charIndex--;
+                
+                if (charIndex === 0) {
+                    isDeleting = false;
+                    textIndex = (textIndex + 1) % typingTexts.length;
+                }
+            }
+            
+            setTimeout(typeWriter, isDeleting ? 30 : 70);
+        }
+        
+        typeWriter();
+
+        // === COPY CODE BUTTON ===
+        function copyCode(button) {
+            const codeBlock = button.parentElement.querySelector('code');
+            const text = codeBlock.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                button.textContent = 'Copied!';
+                button.style.background = '#22d3ee';
+                setTimeout(() => {
+                    button.textContent = 'Copy';
+                    button.style.background = '#6366f1';
+                }, 2000);
+            }).catch(() => {
+                // Fallback for older browsers
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                button.textContent = 'Copied!';
+                setTimeout(() => { button.textContent = 'Copy'; }, 2000);
+            });
+        }
+
+        // === CHART.JS — Chunking Strategy Comparison ===
+        const ctx = document.getElementById('chunkingChart');
+        if (ctx) {
+            new Chart(ctx.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: ['Recursive', 'Character', 'Token', 'Semantic'],
+                    datasets: [
+                        {
+                            label: 'Quality (1-10)',
+                            data: [8, 5, 7, 9.5],
+                            backgroundColor: 'rgba(99, 102, 241, 0.7)',
+                            borderColor: '#6366f1',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Speed (1-10)',
+                            data: [9, 10, 8, 4],
+                            backgroundColor: 'rgba(34, 211, 238, 0.7)',
+                            borderColor: '#22d3ee',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Cost Efficiency (1-10)',
+                            data: [9, 10, 8, 3],
+                            backgroundColor: 'rgba(251, 191, 36, 0.7)',
+                            borderColor: '#fbbf24',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#e2e8f0', font: { family: 'Inter' } }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 10,
+                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            ticks: { color: '#9ca3af' }
+                        },
+                        x: {
+                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            ticks: { color: '#9ca3af' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // === SMOOTH SCROLL for nav links ===
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
