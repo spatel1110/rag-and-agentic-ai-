@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RAG &amp; Agents 🤖 — Interview Prep (Hinglish)</title>
+  <meta name="description" content="RAG & Agentic AI interview prep in Hinglish. RAG basics, advanced patterns, LangGraph workflows, 20+ interview Q&A and a cheatsheet." />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Animate.css -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+  <!-- Prism.js (syntax highlighting) -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: '#6366f1',
+            cyanx: '#22d3ee',
+            successx: '#4ade80',
+            warnx: '#f59e0b',
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    :root {
+      --bg: #0f0f23;
+      --card: #1e1e3f;
+      --code: #1a1a2e;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+    }
+    html.light {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --code: #1a1a2e;
+      --text: #1e293b;
+      --muted: #475569;
+    }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      scroll-behavior: smooth;
+      transition: background-color .3s ease, color .3s ease;
+    }
+    html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+    .card-bg { background-color: var(--card); }
+    .muted { color: var(--muted); }
+    code, pre { font-family: 'JetBrains Mono', monospace; }
+
+    /* Progress bar */
+    #progressBar {
+      position: fixed; top: 0; left: 0; height: 4px; width: 0%;
+      background: linear-gradient(90deg, #6366f1, #22d3ee); z-index: 60;
+      transition: width .1s linear;
+    }
+
+    /* Card hover lift + glow */
+    .lift { transition: transform .25s ease, box-shadow .25s ease; }
+    .lift:hover { transform: translateY(-6px); box-shadow: 0 12px 30px rgba(99,102,241,.35); }
+
+    /* Reveal on scroll */
+    .reveal { opacity: 0; transform: translateY(30px); transition: opacity .6s ease, transform .6s ease; }
+    .reveal.show { opacity: 1; transform: translateY(0); }
+
+    /* Flip card */
+    .flip { perspective: 1200px; min-height: 200px; cursor: pointer; }
+    .flip-inner { position: relative; width: 100%; height: 100%; min-height: 200px; transition: transform .7s; transform-style: preserve-3d; }
+    .flip.flipped .flip-inner { transform: rotateY(180deg); }
+    .flip-face { position: absolute; inset: 0; backface-visibility: hidden; border-radius: .75rem; padding: 1.25rem; display: flex; flex-direction: column; justify-content: center; }
+    .flip-back { transform: rotateY(180deg); }
+
+    /* Code block */
+    pre[class*="language-"] { border-radius: .6rem; background: var(--code) !important; margin: 0; }
+    .codewrap { position: relative; }
+    .copybtn { position: absolute; top: 10px; right: 10px; font-size: 12px; }
+
+    /* Tabs */
+    .tab-btn.active { background: #6366f1; color: #fff; }
+    .accordion-body { max-height: 0; overflow: hidden; transition: max-height .4s ease; }
+
+    ::-webkit-scrollbar { width: 10px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #6366f1; border-radius: 8px; }
+
+    .typing::after { content: '|'; animation: blink 1s step-end infinite; color: #22d3ee; }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    table { border-collapse: collapse; }
+    .gradient-text { background: linear-gradient(90deg,#6366f1,#22d3ee); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  </style>
+</head>
+<body>
+  <div id="progressBar"></div>
+
+  <!-- ============ NAVBAR ============ -->
+  <nav class="sticky top-0 z-50 backdrop-blur-md border-b border-white/10" style="background:color-mix(in srgb, var(--bg) 85%, transparent);">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+      <a href="#home" class="text-xl font-extrabold gradient-text">RAG &amp; Agents 🤖</a>
+      <div class="hidden lg:flex items-center gap-6 text-sm font-medium">
+        <a href="#home" class="hover:text-brand transition">Home</a>
+        <a href="#rag" class="hover:text-brand transition">RAG Basics</a>
+        <a href="#advanced" class="hover:text-brand transition">Advanced RAG</a>
+        <a href="#agentic" class="hover:text-brand transition">Agentic AI</a>
+        <a href="#workflows" class="hover:text-brand transition">Workflows</a>
+        <a href="#qa" class="hover:text-brand transition">Interview Q&amp;A</a>
+        <a href="#cheatsheet" class="hover:text-brand transition">Cheatsheet</a>
+      </div>
+      <div class="flex items-center gap-3">
+        <button id="themeToggle" class="px-3 py-2 rounded-lg card-bg border border-white/10 text-sm lift" title="Toggle theme">🌙</button>
+        <button id="menuToggle" class="lg:hidden px-3 py-2 rounded-lg card-bg border border-white/10">☰</button>
+      </div>
+    </div>
+    <div id="mobileMenu" class="lg:hidden hidden px-4 pb-4 flex-col gap-2 text-sm">
+      <a href="#home" class="block py-1 hover:text-brand">Home</a>
+      <a href="#rag" class="block py-1 hover:text-brand">RAG Basics</a>
+      <a href="#advanced" class="block py-1 hover:text-brand">Advanced RAG</a>
+      <a href="#agentic" class="block py-1 hover:text-brand">Agentic AI</a>
+      <a href="#workflows" class="block py-1 hover:text-brand">Workflows</a>
+      <a href="#qa" class="block py-1 hover:text-brand">Interview Q&amp;A</a>
+      <a href="#cheatsheet" class="block py-1 hover:text-brand">Cheatsheet</a>
+    </div>
+  </nav>
+
+  <!-- ============ HERO ============ -->
+  <header id="home" class="max-w-7xl mx-auto px-4 pt-16 pb-20 text-center">
+    <p class="text-cyanx font-semibold tracking-wide animate__animated animate__fadeInDown">Interview Prep • Hinglish Edition</p>
+    <h1 class="mt-3 text-4xl md:text-6xl font-extrabold leading-tight animate__animated animate__fadeInUp">
+      Kal Interview Hai? <br/> <span class="gradient-text">Koi baat nahi, hum hain na 🔥</span>
+    </h1>
+    <p class="mt-6 max-w-2xl mx-auto text-lg muted animate__animated animate__fadeInUp">
+      Bhai, yahan tu seekhega <b>RAG</b>, <b>Advanced Retrieval</b>, <b>Agentic AI</b> aur <b>LangGraph</b> — sab kuch
+      simple Hinglish mein, diagrams ke saath, code ke saath. Ekdum interview-ready. Chal shuru karte hain!
+    </p>
+    <div class="mt-8 h-8 text-xl font-mono text-cyanx">
+      <span id="typed" class="typing"></span>
+    </div>
+    <div class="mt-8 flex flex-wrap gap-4 justify-center">
+      <a href="#rag" class="px-6 py-3 rounded-xl bg-brand text-white font-semibold lift">RAG Start Karo</a>
+      <a href="#agentic" class="px-6 py-3 rounded-xl card-bg border border-white/10 font-semibold lift">Agentic AI Dekho</a>
+    </div>
+  </header>
+
+  <!-- ============ SECTION 2: RAG FUNDAMENTALS ============ -->
+  <section id="rag" class="max-w-7xl mx-auto px-4 py-16 reveal">
+    <h2 class="text-3xl md:text-4xl font-extrabold mb-2">2. RAG Fundamentals 📚</h2>
+    <p class="muted mb-10">Basics se shuru karte hain — RAG kya hai, components, chunking, embeddings aur vector stores.</p>
+
+    <!-- 2.1 -->
+    <div class="card-bg rounded-2xl p-6 border border-white/10 mb-8 lift">
+      <h3 class="text-2xl font-bold mb-3">2.1 RAG Kya Hai? 🤔</h3>
+      <p class="muted mb-4">
+        Bhai, <b>RAG (Retrieval-Augmented Generation)</b> basically ek smart library hai jahan se LLM apna jawab
+        dhundhta hai — apne dimaag se hallucinate nahi karta. Pehle relevant documents <b>retrieve</b> karta hai,
+        phir unko query ke saath LLM ko deta hai, taaki jawab <b>factual</b> aur <b>up-to-date</b> rahe.
+      </p>
+      <div class="mermaid bg-[#1a1a2e] rounded-xl p-4">
+flowchart LR
+    A([User Query]):::input --> B[Retriever]:::proc
+    B --> C[(Vector DB)]:::proc
+    C --> D[Context + Query]:::proc
+    D --> E[LLM]:::proc
+    E --> F([Answer]):::output
+    classDef input fill:#6366f1,stroke:#6366f1,color:#fff
+    classDef proc fill:#1e1e3f,stroke:#6366f1,color:#e2e8f0
+    classDef output fill:#4ade80,stroke:#4ade80,color:#06280f
+      </div>
+
+      <h4 class="text-lg font-bold mt-6 mb-3">RAG vs Fine-tuning vs Prompt Engineering</h4>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="text-left border-b border-white/10">
+              <th class="py-2 pr-4">Approach</th><th class="py-2 pr-4">Cost</th><th class="py-2 pr-4">Accuracy</th><th class="py-2 pr-4">Freshness</th><th class="py-2">When to Use</th>
+            </tr>
+          </thead>
+          <tbody class="muted">
+            <tr class="border-b border-white/5"><td class="py-2 pr-4 font-semibold text-cyanx">🔍 RAG</td><td>Low</td><td>High</td><td>Real-time</td><td>Dynamic knowledge</td></tr>
+            <tr class="border-b border-white/5"><td class="py-2 pr-4 font-semibold text-warnx">🎯 Fine-tuning</td><td>High</td><td>Very High</td><td>Stale</td><td>Domain-specific tone</td></tr>
+            <tr><td class="py-2 pr-4 font-semibold text-successx">✍️ Prompt Eng.</td><td>None</td><td>Medium</td><td>Stale</td><td>Simple tasks</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 2.2 Core components -->
+    <h3 class="text-2xl font-bold mb-4">2.2 RAG Ke Core Components 🧩</h3>
+    <div class="grid md:grid-cols-3 gap-6 mb-10">
+      <div class="card-bg rounded-2xl p-6 border border-white/10 lift">
+        <div class="text-3xl mb-2">📦</div>
+        <h4 class="font-bold text-lg mb-1">Knowledge Base</h4>
+        <p class="muted text-sm mb-3">Tera data — PDFs, docs, websites — chunks mein toda aur vector DB mein store kiya.</p>
+        <div class="codewrap"><pre class="language-python"><code>loader = PyPDFLoader("doc.pdf")
+docs = loader.load()</code></pre></div>
+      </div>
+      <div class="card-bg rounded-2xl p-6 border border-white/10 lift">
+        <div class="text-3xl mb-2">🔎</div>
+        <h4 class="font-bold text-lg mb-1">Retriever</h4>
+        <p class="muted text-sm mb-3">Query ke hisaab se sabse relevant chunks dhoondh ke laata hai (Swiggy delivery boy 🛵).</p>
+        <div class="codewrap"><pre class="language-python"><code>retriever = db.as_retriever(
+    search_kwargs={"k": 4})</code></pre></div>
+      </div>
+      <div class="card-bg rounded-2xl p-6 border border-white/10 lift">
+        <div class="text-3xl mb-2">🧠</div>
+        <h4 class="font-bold text-lg mb-1">Generator (LLM)</h4>
+        <p class="muted text-sm mb-3">Retrieved context + query leke final jawab banata hai — grounded aur clean.</p>
+        <div class="codewrap"><pre class="language-python"><code>chain = create_retrieval_chain(
+    retriever, doc_chain)</code></pre></div>
+      </div>
+    </div>
+
+    <!-- 2.3 Chunking -->
+    <div class="card-bg rounded-2xl p-6 border border-white/10 mb-8 lift">
+      <h3 class="text-2xl font-bold mb-3">2.3 Chunking Strategies ✂️</h3>
+      <p class="muted mb-4">Bade documents ko chote pieces (chunks) mein todte hain. Chunk chota = precise match, bada = zyada context. Balance zaruri hai!</p>
+      <div class="codewrap mb-4">
+        <pre class="language-python"><code># Yahan hum document ko chunks mein tod rahe hain
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+
+splitter = RecursiveCharacterTextSplitter(
+    chunk_size=512,        # ek chunk mein kitne characters
+    chunk_overlap=80,      # context preserve karne ke liye overlap (10-20%)
+    separators=["\n\n", "\n", ". ", " ", ""]  # hierarchical splitting
+)
+chunks = splitter.split_documents(docs)</code></pre>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead><tr class="text-left border-b border-white/10"><th class="py-2 pr-4">Use Case</th><th class="py-2 pr-4">Chunk Size</th><th class="py-2">Kyun?</th></tr></thead>
+          <tbody class="muted">
+            <tr class="border-b border-white/5"><td class="py-2 pr-4">Factoid queries</td><td>128–256 tokens</td><td>Precise, short facts</td></tr>
+            <tr class="border-b border-white/5"><td class="py-2 pr-4">General RAG</td><td>256–512 tokens</td><td>Balanced default</td></tr>
+            <tr><td class="py-2 pr-4">Complex analysis</td><td>512–1024 tokens</td><td>Zyada context chahiye</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 2.4 Embeddings -->
+    <div class="card-bg rounded-2xl p-6 border border-white/10 mb-8 lift">
+      <h3 class="text-2xl font-bold mb-3">2.4 Embeddings 🔢</h3>
+      <p class="muted mb-4">Text ko numbers (vectors) mein convert karte hain. Similar meaning wale texts vector space mein paas-paas aate hain. Similarity measure karne ke liye distance metrics use hote hain.</p>
+      <div class="grid md:grid-cols-2 gap-6 items-center">
+        <div><canvas id="distanceChart" height="220"></canvas></div>
+        <div class="codewrap">
+          <pre class="language-python"><code># OpenAI embeddings
+from langchain_openai import OpenAIEmbeddings
+emb = OpenAIEmbeddings(model="text-embedding-3-small")
+
+# Ya phir local Ollama embeddings (free!)
+from langchain_ollama import OllamaEmbeddings
+emb = OllamaEmbeddings(model="embeddinggemma")
+
+vec = emb.embed_query("RAG kya hai?")</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2.5 Vector stores -->
+    <div class="card-bg rounded-2xl p-6 border border-white/10 lift">
+      <h3 class="text-2xl font-bold mb-3">2.5 Vector Stores Comparison 🗄️</h3>
+      <div class="flex flex-wrap gap-2 mb-4" id="vsFilters">
+        <button data-f="all" class="vs-filter active px-3 py-1 rounded-lg bg-brand text-white text-sm">All</button>
+        <button data-f="free" class="vs-filter px-3 py-1 rounded-lg card-bg border border-white/10 text-sm">Free</button>
+        <button data-f="production" class="vs-filter px-3 py-1 rounded-lg card-bg border border-white/10 text-sm">Production</button>
+        <button data-f="selfhosted" class="vs-filter px-3 py-1 rounded-lg card-bg border border-white/10 text-sm">Self-hosted</button>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead><tr class="text-left border-b border-white/10"><th class="py-2 pr-4">Store</th><th class="py-2 pr-4">Type</th><th class="py-2 pr-4">Best For</th><th class="py-2 pr-4">Free Tier</th><th class="py-2">Speed</th></tr></thead>
+          <tbody class="muted">
+            <tr class="vs-row border-b border-white/5" data-tags="all free selfhosted"><td class="py-2 pr-4 font-semibold">Chroma</td><td>Embedded</td><td>Learning</td><td>Unlimited</td><td>Fast</td></tr>
+            <tr class="vs-row border-b border-white/5" data-tags="all free selfhosted"><td class="py-2 pr-4 font-semibold">FAISS</td><td>Library</td><td>High perf</td><td>Unlimited</td><td>Fastest</td></tr>
+            <tr class="vs-row border-b border-white/5" data-tags="all production free selfhosted"><td class="py-2 pr-4 font-semibold">Qdrant</td><td>Server</td><td>Production</td><td>1GB cloud</td><td>Fast</td></tr>
+            <tr class="vs-row border-b border-white/5" data-tags="all production free"><td class="py-2 pr-4 font-semibold">Pinecone</td><td>Managed</td><td>Zero-ops</td><td>100K vectors</td><td>Fast</td></tr>
+            <tr class="vs-row" data-tags="all production selfhosted"><td class="py-2 pr-4 font-semibold">Milvus</td><td>Server</td><td>Billion-scale</td><td>Self-hosted</td><td>Fast</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SECTION 3: ADVANCED RAG ============ -->
+  <section id="advanced" class="max-w-7xl mx-auto px-4 py-16 reveal">
+    <h2 class="text-3xl md:text-4xl font-extrabold mb-2">3. Advanced RAG ⚡</h2>
+    <p class="muted mb-10">Retrieval ko next level pe le jaate hain — better recall, better precision.</p>
+
+    <!-- 3.1 Tabs -->
+    <div class="card-bg rounded-2xl p-6 border border-white/10 mb-10 lift">
+      <h3 class="text-2xl font-bold mb-4">3.1 Retrieval Techniques</h3>
+      <div class="flex flex-wrap gap-2 mb-5" id="retTabs">
+        <button class="tab-btn active px-4 py-2 rounded-lg card-bg border border-white/10 text-sm" data-tab="t1">Similarity Search</button>
+        <button class="tab-btn px-4 py-2 rounded-lg card-bg border border-white/10 text-sm" data-tab="t2">MMR</button>
+        <button class="tab-btn px-4 py-2 rounded-lg card-bg border border-white/10 text-sm" data-tab="t3">Hybrid Search</button>
+        <button class="tab-btn px-4 py-2 rounded-lg card-bg border border-white/10 text-sm" data-tab="t4">Contextual Compression</button>
+      </div>
+
+      <div class="tab-pane" data-tab="t1">
+        <p class="muted mb-3">Sabse basic — query ka vector banao, aur vector DB se sabse paas wale <b>k</b> chunks le aao (cosine similarity).</p>
+        <div class="codewrap"><pre class="language-python"><code>results = db.similarity_search("RAG benefits", k=4)
+# scores ke saath
+results = db.similarity_search_with_score("RAG benefits", k=4)</code></pre></div>
+      </div>
+      <div class="tab-pane hidden" data-tab="t2">
+        <p class="muted mb-3"><b>MMR (Maximal Marginal Relevance)</b> — relevance + diversity ka balance. Lambda 1 = pure relevance, 0 = pure diversity. Duplicate chunks avoid karta hai.</p>
+        <div class="codewrap"><pre class="language-python"><code>retriever = db.as_retriever(
+    search_type="mmr",
+    search_kwargs={"k": 4, "fetch_k": 20, "lambda_mult": 0.5})</code></pre></div>
+      </div>
+      <div class="tab-pane hidden" data-tab="t3">
+        <p class="muted mb-3"><b>Hybrid Search</b> = Dense (semantic) + Sparse (keyword/BM25). Jab exact keywords matter karte hain tab pure semantic se better hota hai.</p>
+        <div class="mermaid bg-[#1a1a2e] rounded-xl p-4 mb-3">
+flowchart LR
+    Q([Query]):::input --> D[Dense / Embeddings]:::proc
+    Q --> S[Sparse / BM25]:::proc
+    D --> E[EnsembleRetriever]:::dec
+    S --> E
+    E --> R([Ranked Results]):::output
+    classDef input fill:#6366f1,color:#fff
+    classDef proc fill:#1e1e3f,color:#e2e8f0
+    classDef dec fill:#f59e0b,color:#3a2400
+    classDef output fill:#4ade80,color:#06280f
+        </div>
+        <div class="codewrap"><pre class="language-python"><code>from langchain.retrievers import EnsembleRetriever
+ensemble = EnsembleRetriever(
+    retrievers=[bm25_retriever, vector_retriever],
+    weights=[0.4, 0.6])  # alpha weighting</code></pre></div>
+      </div>
+      <div class="tab-pane hidden" data-tab="t4">
+        <p class="muted mb-3"><b>Contextual Compression</b> — retrieve karne ke baad noise hata ke sirf relevant part rakhta hai. LLM ko clean context milta hai.</p>
+        <div class="codewrap"><pre class="language-python"><code>from langchain.retrievers import ContextualCompressionRetriever
+from langchain.retrievers.document_compressors import LLMChainExtractor
+
+compressor = LLMChainExtractor.from_llm(llm)
+cc = ContextualCompressionRetriever(
+    base_compressor=compressor, base_retriever=retriever)</code></pre></div>
+      </div>
+    </div>
+
+    <!-- 3.2 Accordion patterns -->
+    <h3 class="text-2xl font-bold mb-4">3.2 Advanced Patterns</h3>
+    <div class="space-y-3" id="patternAccordion">
+      <!-- Each item filled by template below -->
+    </div>
+  </section>
+
+  <!-- ============ SECTION 4: AGENTIC AI ============ -->
+  <section id="agentic" class="max-w-7xl mx-auto px-4 py-16 reveal">
+    <h2 class="text-3xl md:text-4xl font-extrabold mb-2">4. Agentic AI 🦾</h2>
+    <p class="muted mb-10">RAG se aage — agents jo sochte hain, plan banate hain, tools use karte hain.</p>
+
+    <div class="card-bg rounded-2xl p-6 border border-white/10 mb-8 lift">
+      <h3 class="text-2xl font-bold mb-3">4.1 Agentic AI Kya Hota Hai?</h3>
+      <p class="muted mb-4">
+        Bhai, RAG ek baar retrieve karta hai aur jawab deta hai. <b>Agent?</b> Woh sochta hai, plan banata hai,
+        tools use karta hai, galti se seekhta hai — ek real employee ki tarah. Multi-step reasoning karta hai.
+      </p>
+      <div class="mermaid bg-[#1a1a2e] rounded-xl p-4">
+flowchart TD
+    subgraph RAG_Flow [Simple RAG]
+      direction LR
+      A1([Query]):::input --> A2[Retrieve]:::proc --> A3[Generate]:::proc --> A4([Done ✓]):::output
+    end
+    subgraph Agent_Flow [Agentic]
+      direction LR
+      B1([Query]):::input --> B2[Think]:::proc --> B3[Plan]:::proc --> B4[Tool Call]:::dec --> B5[Observe]:::proc --> B2
+      B5 --> B6([Final Answer]):::output
+    end
+    classDef input fill:#6366f1,color:#fff
+    classDef proc fill:#1e1e3f,color:#e2e8f0
+    classDef dec fill:#f59e0b,color:#3a2400
+    classDef output fill:#4ade80,color:#06280f
+      </div>
+    </div>
+
+    <div class="card-bg rounded-2xl p-6 border border-white/10 mb-8 lift">
+      <h3 class="text-2xl font-bold mb-3">4.2 Agent Core Components 🧠</h3>
+      <div class="mermaid bg-[#1a1a2e] rounded-xl p-4">
+flowchart LR
+    Brain[Brain / LLM]:::input --> Mem[Memory<br/>Short + Long term]:::proc
+    Brain --> Tools[Tools<br/>Search, Code, APIs, RAG]:::proc
+    Brain --> Plan[Planning<br/>ReAct / ToT]:::dec
+    Plan --> Act[Action]:::proc --> Obs[Observe]:::proc --> Brain
+    classDef input fill:#6366f1,color:#fff
+    classDef proc fill:#1e1e3f,color:#e2e8f0
+    classDef dec fill:#f59e0b,color:#3a2400
+      </div>
+    </div>
+
+    <!-- 4.3 Memory cards -->
+    <h3 class="text-2xl font-bold mb-4">4.3 Memory Systems 💾</h3>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
+      <div class="card-bg rounded-2xl p-5 border border-white/10 lift"><div class="text-2xl mb-2">⚡</div><h4 class="font-bold mb-1">Short-term</h4><p class="muted text-sm">Conversation history — abhi ki baatcheet yaad rakhta hai.</p></div>
+      <div class="card-bg rounded-2xl p-5 border border-white/10 lift"><div class="text-2xl mb-2">🗃️</div><h4 class="font-bold mb-1">Long-term</h4><p class="muted text-sm">Vector DB mein persistent memory — purani cheezein bhi yaad.</p></div>
+      <div class="card-bg rounded-2xl p-5 border border-white/10 lift"><div class="text-2xl mb-2">📅</div><h4 class="font-bold mb-1">Episodic</h4><p class="muted text-sm">Past tasks/experiences — "pehle aise kiya tha" wali memory.</p></div>
+      <div class="card-bg rounded-2xl p-5 border border-white/10 lift"><div class="text-2xl mb-2">📖</div><h4 class="font-bold mb-1">Semantic</h4><p class="muted text-sm">Knowledge facts — general gyaan jo stable rehta hai.</p></div>
+    </div>
+
+    <!-- 4.4 Tools -->
+    <div class="card-bg rounded-2xl p-6 border border-white/10 lift">
+      <h3 class="text-2xl font-bold mb-3">4.4 Tool Use &amp; Function Calling 🛠️</h3>
+      <p class="muted mb-4">Agent decide karta hai konsa tool kab call karna hai. Tools = Web search, Code executor, RAG retriever, Calculator, API caller.</p>
+      <div class="codewrap"><pre class="language-python"><code># Yahan hum ek tool define kar rahe hain
+from langchain_core.tools import tool
+
+@tool
+def search_docs(query: str) -> str:
+    """Knowledge base se relevant info retrieve karta hai."""
+    docs = retriever.invoke(query)
+    return "\n".join(d.page_content for d in docs)
+
+# Agent ko tools bind karo
+llm_with_tools = llm.bind_tools([search_docs])</code></pre></div>
+    </div>
+  </section>
+
+  <!-- ============ SECTION 5: WORKFLOWS ============ -->
+  <section id="workflows" class="max-w-7xl mx-auto px-4 py-16 reveal">
+    <h2 class="text-3xl md:text-4xl font-extrabold mb-2">5. Agentic Workflows — LangGraph 🕸️</h2>
+    <p class="muted mb-10">LangGraph se complex agent workflows banate hain — nodes, edges, state.</p>
+
+    <div class="card-bg rounded-2xl p-6 border border-white/10 mb-8 lift">
+      <h3 class="text-2xl font-bold mb-3">5.1 LangGraph Basics</h3>
+      <p class="muted mb-4">LangGraph ek graph hai jahan <b>nodes = functions</b>, <b>edges = decisions</b>, aur <b>state = shared memory</b>. Cyclic flows possible hain (loops).</p>
+      <div class="mermaid bg-[#1a1a2e] rounded-xl p-4">
+flowchart LR
+    S([State]):::input --> N1[Node 1]:::proc --> C{Conditional Edge}:::dec
+    C -->|path A| N2[Node 2]:::proc
+    C -->|path B| N3[Node 3]:::proc
+    N2 --> E([END]):::output
+    N3 --> E
+    classDef input fill:#6366f1,color:#fff
+    classDef proc fill:#1e1e3f,color:#e2e8f0
+    classDef dec fill:#f59e0b,color:#3a2400
+    classDef output fill:#4ade80,color:#06280f
+      </div>
+    </div>
+
+    <h3 class="text-2xl font-bold mb-4">5.2 Key Workflow Patterns</h3>
+    <div class="grid lg:grid-cols-2 gap-6 mb-10">
+      <div class="card-bg rounded-2xl p-5 border border-white/10 lift">
+        <h4 class="font-bold text-lg mb-2">ReAct Pattern</h4>
+        <div class="mermaid bg-[#1a1a2e] rounded-xl p-3">
+flowchart LR
+    I([Input]):::input --> R[Reason]:::proc --> A[Act / Tool]:::dec --> O[Observe]:::proc --> R
+    O --> F([Final Answer]):::output
+    classDef input fill:#6366f1,color:#fff
+    classDef proc fill:#1e1e3f,color:#e2e8f0
+    classDef dec fill:#f59e0b,color:#3a2400
+    classDef output fill:#4ade80,color:#06280f
+        </div>
+      </div>
+      <div class="card-bg rounded-2xl p-5 border border-white/10 lift">
+        <h4 class="font-bold text-lg mb-2">Plan &amp; Execute</h4>
+        <div class="mermaid bg-[#1a1a2e] rounded-xl p-3">
+flowchart LR
+    Q([Query]):::input --> P[Planner<br/>creates steps]:::proc --> X[Executor<br/>runs each step]:::proc --> RP{Replanner}:::dec
+    RP -->|more steps| X
+    RP -->|done| AnsP([Answer]):::output
+    classDef input fill:#6366f1,color:#fff
+    classDef proc fill:#1e1e3f,color:#e2e8f0
+    classDef dec fill:#f59e0b,color:#3a2400
+    classDef output fill:#4ade80,color:#06280f
+        </div>
+      </div>
+      <div class="card-bg rounded-2xl p-5 border border-white/10 lift">
+        <h4 class="font-bold text-lg mb-2">Multi-Agent Supervisor</h4>
+        <div class="mermaid bg-[#1a1a2e] rounded-xl p-3">
+flowchart TD
+    U([User]):::input --> Sup[Supervisor Agent]:::dec
+    Sup --> RsA[Research Agent]:::proc
+    Sup --> CdA[Code Agent]:::proc
+    Sup --> AnA[Analysis Agent]:::proc
+    RsA --> Sup
+    CdA --> Sup
+    AnA --> Sup
+    Sup --> AnsS([Answer]):::output
+    classDef input fill:#6366f1,color:#fff
+    classDef proc fill:#1e1e3f,color:#e2e8f0
+    classDef dec fill:#f59e0b,color:#3a2400
+    classDef output fill:#4ade80,color:#06280f
+        </div>
+      </div>
+      <div class="card-bg rounded-2xl p-5 border border-white/10 lift">
+        <h4 class="font-bold text-lg mb-2">CRAG with LangGraph</h4>
+        <div class="mermaid bg-[#1a1a2e] rounded-xl p-3">
+flowchart LR
+    Q([Query]):::input --> RN[retrieve_node]:::proc --> GD{grade_documents}:::dec
+    GD -->|relevant| GEN[generate]:::proc
+    GD -->|not relevant| WS[web_search]:::proc --> GEN
+    GEN --> AnsC([Answer]):::output
+    classDef input fill:#6366f1,color:#fff
+    classDef proc fill:#1e1e3f,color:#e2e8f0
+    classDef dec fill:#f59e0b,color:#3a2400
+    classDef output fill:#4ade80,color:#06280f
+        </div>
+      </div>
+    </div>
+
+    <div class="card-bg rounded-2xl p-6 border border-white/10 lift">
+      <h3 class="text-2xl font-bold mb-3">5.3 LangGraph Code Example — ReAct Agent</h3>
+      <div class="codewrap"><pre class="language-python"><code># Yahan hum ek simple ReAct agent bana rahe hain LangGraph se
+from typing import Annotated, TypedDict
+from langgraph.graph import StateGraph, START, END
+from langgraph.graph.message import add_messages
+from langgraph.prebuilt import ToolNode, tools_condition
+
+# 1. State define karo (shared memory)
+class AgentState(TypedDict):
+    messages: Annotated[list, add_messages]
+
+llm_with_tools = llm.bind_tools([search_docs])
+
+# 2. Node function — agent ka brain
+def agent_node(state: AgentState):
+    return {"messages": [llm_with_tools.invoke(state["messages"])]}
+
+# 3. Graph banao
+graph = StateGraph(AgentState)
+graph.add_node("agent", agent_node)
+graph.add_node("tools", ToolNode([search_docs]))
+
+# 4. Edges + conditional routing
+graph.add_edge(START, "agent")
+graph.add_conditional_edges("agent", tools_condition)  # tool chahiye ya nahi
+graph.add_edge("tools", "agent")   # loop back
+graph.add_edge("agent", END)
+
+# 5. Compile aur invoke
+app = graph.compile()
+result = app.invoke({"messages": [("user", "RAG fusion explain karo")]})</code></pre></div>
+    </div>
+  </section>
+
+  <!-- ============ SECTION 6: INTERVIEW Q&A ============ -->
+  <section id="qa" class="max-w-7xl mx-auto px-4 py-16 reveal">
+    <h2 class="text-3xl md:text-4xl font-extrabold mb-2">6. Interview Q&amp;A 🎤</h2>
+    <p class="muted mb-10">Card pe click karo — answer flip hoke aayega. Total 20 questions (RAG + Agentic AI).</p>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5" id="qaGrid"></div>
+  </section>
+
+  <!-- ============ SECTION 7: CHEATSHEET ============ -->
+  <section id="cheatsheet" class="max-w-7xl mx-auto px-4 py-16 reveal">
+    <div class="flex items-center justify-between flex-wrap gap-3 mb-8">
+      <div>
+        <h2 class="text-3xl md:text-4xl font-extrabold mb-1">7. Quick Cheatsheet 📝</h2>
+        <p class="muted">Last-minute revision ke liye. Print/PDF bhi kar sakta hai.</p>
+      </div>
+      <button onclick="window.print()" class="px-5 py-3 rounded-xl bg-brand text-white font-semibold lift">⬇️ Download as PDF</button>
+    </div>
+    <div class="grid lg:grid-cols-2 gap-6">
+      <div class="card-bg rounded-2xl p-6 border border-white/10">
+        <h3 class="text-xl font-bold mb-3 gradient-text">RAG Cheatsheet</h3>
+        <ul class="muted text-sm space-y-2">
+          <li>• <b>Pipeline:</b> Load → Split → Embed → Store → Retrieve → Generate</li>
+          <li>• <b>Chunk size:</b> Factoid 128–256 • General 256–512 • Complex 512–1024</li>
+          <li>• <b>Overlap:</b> 10–20% of chunk size</li>
+          <li>• <b>Distance:</b> Cosine (most common), Euclidean, Dot product</li>
+          <li>• <b>MMR:</b> lambda 1 = relevance, 0 = diversity</li>
+          <li>• <b>Hybrid:</b> BM25 (sparse) + embeddings (dense) via EnsembleRetriever</li>
+          <li>• <b>HyDE:</b> hypothetical answer embed karke search</li>
+          <li>• <b>CRAG:</b> grade docs → web fallback if irrelevant</li>
+          <li>• <b>RAG Fusion:</b> multi-query + Reciprocal Rank Fusion</li>
+        </ul>
+        <div class="codewrap mt-4"><pre class="language-python"><code>db = Chroma.from_documents(chunks, emb)
+r = db.as_retriever(search_type="mmr",
+    search_kwargs={"k": 4})</code></pre></div>
+      </div>
+      <div class="card-bg rounded-2xl p-6 border border-white/10">
+        <h3 class="text-xl font-bold mb-3 gradient-text">Agentic AI Cheatsheet</h3>
+        <ul class="muted text-sm space-y-2">
+          <li>• <b>Agent = </b> LLM + Memory + Tools + Planning + Loop</li>
+          <li>• <b>ReAct:</b> Reason → Act → Observe → repeat</li>
+          <li>• <b>Plan &amp; Execute:</b> plan steps → execute → replan</li>
+          <li>• <b>LangGraph:</b> nodes=functions, edges=decisions, state=memory</li>
+          <li>• <b>Conditional edges:</b> routing based on state</li>
+          <li>• <b>Memory:</b> short-term, long-term, episodic, semantic</li>
+          <li>• <b>Supervisor:</b> ek boss agent → specialized sub-agents</li>
+          <li>• <b>HITL:</b> human-in-the-loop for risky/critical actions</li>
+          <li>• <b>Eval:</b> RAGAS — faithfulness, relevance, context precision/recall</li>
+        </ul>
+        <div class="codewrap mt-4"><pre class="language-python"><code>graph = StateGraph(AgentState)
+graph.add_conditional_edges(
+    "agent", tools_condition)
+app = graph.compile()</code></pre></div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="max-w-7xl mx-auto px-4 py-10 text-center muted text-sm border-t border-white/10">
+    <p>Banaya gaya interview prep ke liye • RAG &amp; Agentic AI • Hinglish Edition 🇮🇳</p>
+    <p class="mt-1">All the best bhai — ja ke crack kar! 🔥</p>
+  </footer>
+
+  <!-- ============ CDN SCRIPTS ============ -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+
+  <script>
+    /* ---------- THEME TOGGLE ---------- */
+    const root = document.documentElement;
+    const themeToggle = document.getElementById('themeToggle');
+    function setTheme(mode) {
+      if (mode === 'light') { root.classList.remove('dark'); root.classList.add('light'); themeToggle.textContent = '☀️'; }
+      else { root.classList.add('dark'); root.classList.remove('light'); themeToggle.textContent = '🌙'; }
+      localStorage.setItem('theme', mode);
+    }
+    themeToggle.addEventListener('click', () => {
+      setTheme(root.classList.contains('light') ? 'dark' : 'light');
+      renderMermaid();
+    });
+    setTheme(localStorage.getItem('theme') || 'dark');
+
+    /* ---------- MOBILE MENU ---------- */
+    const menuToggle = document.getElementById('menuToggle');
+    const mobileMenu = document.getElementById('mobileMenu');
+    menuToggle.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+    mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => mobileMenu.classList.add('hidden')));
+
+    /* ---------- PROGRESS BAR ---------- */
+    const progressBar = document.getElementById('progressBar');
+    window.addEventListener('scroll', () => {
+      const h = document.documentElement;
+      const scrolled = (h.scrollTop) / (h.scrollHeight - h.clientHeight) * 100;
+      progressBar.style.width = scrolled + '%';
+    });
+
+    /* ---------- HERO TYPING ---------- */
+    const phrases = ['RAG kya hai...', 'Agentic AI kya hai...', 'LangGraph kya karta hai...', 'Chunking kaise karein...'];
+    let pi = 0, ci = 0, deleting = false;
+    const typedEl = document.getElementById('typed');
+    function typeLoop() {
+      const cur = phrases[pi];
+      typedEl.textContent = deleting ? cur.substring(0, ci--) : cur.substring(0, ci++);
+      if (!deleting && ci > cur.length) { deleting = true; setTimeout(typeLoop, 1200); return; }
+      if (deleting && ci < 0) { deleting = false; pi = (pi + 1) % phrases.length; ci = 0; }
+      setTimeout(typeLoop, deleting ? 45 : 80);
+    }
+    typeLoop();
+
+    /* ---------- REVEAL ON SCROLL ---------- */
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('show'); });
+    }, { threshold: 0.08 });
+    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+    /* ---------- VECTOR STORE FILTER ---------- */
+    document.querySelectorAll('.vs-filter').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.vs-filter').forEach(b => { b.classList.remove('active','bg-brand','text-white'); b.classList.add('card-bg','border','border-white/10'); });
+        btn.classList.add('active','bg-brand','text-white'); btn.classList.remove('card-bg');
+        const f = btn.dataset.f;
+        document.querySelectorAll('.vs-row').forEach(row => {
+          row.style.display = row.dataset.tags.includes(f) ? '' : 'none';
+        });
+      });
+    });
+
+    /* ---------- RETRIEVAL TABS ---------- */
+    document.querySelectorAll('#retTabs .tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#retTabs .tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const t = btn.dataset.tab;
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.toggle('hidden', p.dataset.tab !== t));
+      });
+    });
+
+    /* ---------- ADVANCED PATTERNS (ACCORDION) ---------- */
+    const patterns = [
+      { title: 'RAG Fusion 🔀', desc: 'Multiple query variations generate karo, har ek se retrieve karo, phir Reciprocal Rank Fusion (RRF) se results merge karo. Recall improve hota hai.',
+        mermaid: `flowchart LR
+    Q([Query]):::input --> L[LLM: 3 variations]:::proc
+    L --> V[(VectorDB)]:::proc
+    V --> RRF[Reciprocal Rank Fusion]:::dec
+    RRF --> A([Final Answer]):::output
+    classDef input fill:#6366f1,color:#fff
+    classDef proc fill:#1e1e3f,color:#e2e8f0
+    classDef dec fill:#f59e0b,color:#3a2400
+    classDef output fill:#4ade80,color:#06280f`,
+        code: `# RRF: rank ke basis pe scores combine karte hain\ndef rrf(results_list, k=60):\n    scores = {}\n    for docs in results_list:\n        for rank, doc in enumerate(docs):\n            scores[doc] = scores.get(doc, 0) + 1/(k + rank)\n    return sorted(scores, key=scores.get, reverse=True)` },
+      { title: 'HyDE — Hypothetical Document Embeddings 💭', desc: 'Pehle LLM se ek hypothetical answer generate karao, usko embed karke search karo. Query-document semantic gap kam hota hai.',
+        mermaid: `flowchart LR
+    Q([Query]):::input --> H[LLM: hypothetical answer]:::proc
+    H --> E[Embed]:::proc
+    E --> V[(VectorDB)]:::proc
+    V --> A([Real Answer]):::output
+    classDef input fill:#6366f1,color:#fff
+    classDef proc fill:#1e1e3f,color:#e2e8f0
+    classDef output fill:#4ade80,color:#06280f`,
+        code: `from langchain.chains import HypotheticalDocumentEmbedder\nhyde = HypotheticalDocumentEmbedder.from_llm(\n    llm, base_embeddings, prompt_key="web_search")` },
+      { title: 'CRAG — Corrective RAG 🩹', desc: 'Retrieved documents ko grade karo. Agar relevant nahi hain, toh web search fallback karo aur query rewrite karo.',
+        mermaid: `flowchart LR
+    Q([Query]):::input --> R[Retrieve]:::proc --> G{Grade relevance}:::dec
+    G -->|relevant| Gen[Generate]:::proc
+    G -->|not relevant| W[Web Search]:::proc --> Gen
+    Gen --> A([Answer]):::output
+    classDef input fill:#6366f1,color:#fff
+    classDef proc fill:#1e1e3f,color:#e2e8f0
+    classDef dec fill:#f59e0b,color:#3a2400
+    classDef output fill:#4ade80,color:#06280f`,
+        code: `def grade(state):\n    score = grader.invoke({"q": state["q"], "doc": state["doc"]})\n    return "generate" if score == "yes" else "web_search"` },
+      { title: 'Self-RAG 🪞', desc: 'Agent reflection tokens use karta hai — retrieve karna chahiye? Result relevant hai? Answer faithful hai? Self-correction karta hai.',
+        mermaid: `flowchart LR
+    Q([Query]):::input --> D1{Retrieve?}:::dec --> R[Retrieve]:::proc --> D2{Relevant?}:::dec --> Gen[Generate]:::proc --> D3{Faithful?}:::dec --> A([Final Answer]):::output
+    classDef input fill:#6366f1,color:#fff
+    classDef proc fill:#1e1e3f,color:#e2e8f0
+    classDef dec fill:#f59e0b,color:#3a2400
+    classDef output fill:#4ade80,color:#06280f`,
+        code: `# Self-RAG: har step pe self-evaluate karta hai\n# reflection tokens: [Retrieve], [Relevant], [Supported], [Useful]` },
+      { title: 'Graph RAG 🕸️', desc: 'PDFs se entities extract karke knowledge graph (Neo4j) banate hain. Multi-hop queries pe vector RAG se better perform karta hai.',
+        mermaid: `flowchart LR
+    P[(PDF)]:::input --> E[Extract entities]:::proc --> KG[(Knowledge Graph<br/>Neo4j)]:::proc --> MH[Multi-hop Query]:::dec --> A([Answer]):::output
+    classDef input fill:#6366f1,color:#fff
+    classDef proc fill:#1e1e3f,color:#e2e8f0
+    classDef dec fill:#f59e0b,color:#3a2400
+    classDef output fill:#4ade80,color:#06280f`,
+        code: `from langchain_community.graphs import Neo4jGraph\ngraph = Neo4jGraph(url=URL, username=USER, password=PWD)\n# LLMGraphTransformer se documents ko graph mein convert karo` },
+    ];
+    const accEl = document.getElementById('patternAccordion');
+    patterns.forEach((p, i) => {
+      const item = document.createElement('div');
+      item.className = 'card-bg rounded-2xl border border-white/10 overflow-hidden';
+      item.innerHTML = `
+        <button class="acc-head w-full flex items-center justify-between p-5 text-left font-bold text-lg">
+          <span>${p.title}</span><span class="acc-icon text-brand text-2xl">+</span>
+        </button>
+        <div class="accordion-body px-5">
+          <p class="muted mb-4">${p.desc}</p>
+          <div class="mermaid bg-[#1a1a2e] rounded-xl p-3 mb-4">${p.mermaid}</div>
+          <div class="codewrap mb-5"><pre class="language-python"><code>${p.code.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</code></pre></div>
+        </div>`;
+      accEl.appendChild(item);
+    });
+    document.querySelectorAll('.acc-head').forEach(head => {
+      head.addEventListener('click', () => {
+        const body = head.nextElementSibling;
+        const icon = head.querySelector('.acc-icon');
+        const open = body.style.maxHeight && body.style.maxHeight !== '0px';
+        document.querySelectorAll('.accordion-body').forEach(b => { b.style.maxHeight = '0px'; });
+        document.querySelectorAll('.acc-icon').forEach(ic => ic.textContent = '+');
+        if (!open) { body.style.maxHeight = body.scrollHeight + 60 + 'px'; icon.textContent = '−'; renderMermaid(); }
+      });
+    });
+
+    /* ---------- INTERVIEW Q&A FLIP CARDS ---------- */
+    const qa = [
+      ['RAG aur Fine-tuning mein kya difference hai?', '<b>RAG</b> external knowledge real-time retrieve karta hai (sasta, fresh). <b>Fine-tuning</b> model ke weights update karta hai (mehenga, tone/domain ke liye). RAG facts ke liye, fine-tuning behaviour ke liye.'],
+      ['Chunking strategy kaise choose karte hain?', 'Use case dekho — factoid ke liye <b>128–256</b>, general <b>256–512</b>, complex <b>512–1024</b> tokens. <b>10–20% overlap</b> rakho context preserve karne ke liye. RecursiveCharacterTextSplitter default best hai.'],
+      ['MMR kya hai aur kab use karte hain?', '<b>Maximal Marginal Relevance</b> — relevance + diversity balance karta hai. Duplicate chunks avoid karta hai. <b>lambda</b> 1=relevance, 0=diversity. Summarization aur broad queries mein useful.'],
+      ['Hybrid search kaise kaam karta hai?', 'Dense (semantic/embeddings) + Sparse (keyword/<b>BM25</b>) ko combine karta hai <b>EnsembleRetriever</b> se. Jab exact terms (names, codes) matter karte hain tab pure semantic se behtar.'],
+      ['HyDE pattern explain karo?', '<b>HyDE</b> = pehle LLM se hypothetical answer generate karao, usko embed karke search karo. Query aur document ke beech ka <b>semantic gap</b> kam karta hai, recall badhata hai.'],
+      ['CRAG mein fallback mechanism kaise kaam karta hai?', 'Retrieved docs ko <b>grade</b> karta hai. Relevant na ho toh <b>web search</b> fallback + query rewrite. Isse retrieval fail hone par bhi answer quality bani rehti hai.'],
+      ['Vector DB choose karne ke criteria kya hain?', 'Scale, cost, latency, ops. <b>Chroma/FAISS</b> learning/proto, <b>Qdrant/Pinecone</b> production, <b>Milvus</b> billion-scale. Free tier, self-hosted vs managed bhi dekho.'],
+      ['Embedding model choose karne ka framework kya hai?', '<b>MTEB leaderboard</b> dekho, dimension trade-off (384→768→1536→3072), aur cost vs quality. text-embedding-3-small = best value, 3-large = highest quality.'],
+      ['Parent Document Retriever kya hai?', 'Chote <b>child chunks</b> pe match karta hai (precise), lekin LLM ko bada <b>parent chunk</b> deta hai (full context). Chunk-size dilemma solve karta hai.'],
+      ['Self-Query Retriever kaise kaam karta hai?', 'Natural language query ko <b>structured query + metadata filter</b> mein convert karta hai LLM se. AttributeInfo schema define karte hain. E.g. "2023 ke red shoes" → filter.'],
+      ['RAG aur Agentic RAG mein kya difference hai?', 'Simple RAG ek baar retrieve→generate karta hai. <b>Agentic RAG</b> sochta hai, decide karta hai retrieve karna hai ya nahi, multiple tools/steps use karta hai, aur self-correct karta hai.'],
+      ['ReAct pattern explain karo?', '<b>Reason + Act</b> loop — LLM sochta hai, tool call karta hai (Act), result dekhta hai (Observe), phir dobara sochta hai. Jab tak answer ready na ho repeat hota hai.'],
+      ['Agent memory types kaunse hote hain?', '<b>Short-term</b> (conversation), <b>Long-term</b> (vector DB persistent), <b>Episodic</b> (past tasks), <b>Semantic</b> (knowledge facts). Mil ke agent ko context dete hain.'],
+      ['Multi-agent supervisor pattern kaise kaam karta hai?', 'Ek <b>supervisor</b> agent query ko samajh ke specialized sub-agents (research, code, analysis) ko delegate karta hai, results collect karta hai, aur final answer banata hai.'],
+      ['LangGraph mein state kya hota hai?', '<b>State</b> = shared memory (usually TypedDict) jo har node ke beech pass hota hai. Nodes state ko read/update karte hain. Reducers (jaise add_messages) merge handle karte hain.'],
+      ['Tool calling kaise implement karte hain?', '<b>@tool</b> decorator se function define karo, phir <b>llm.bind_tools([...])</b>. LLM decide karta hai konsa tool call karna hai aur arguments structure karta hai (function calling).'],
+      ['Agent evaluation kaise karte hain?', '<b>RAGAS</b> use karo — faithfulness, answer relevance, context precision/recall, noise sensitivity. Agents ke liye tool-use accuracy aur task completion bhi track karo.'],
+      ['Human-in-the-loop kab zaruri hota hai?', 'Jab actions <b>risky/irreversible</b> hon (payments, deletes, emails). LangGraph mein <b>interrupt</b> laga ke human approval lete hain critical step se pehle.'],
+      ['Plan & Execute vs ReAct — kab kya?', '<b>ReAct</b> simple, iterative tasks ke liye. <b>Plan & Execute</b> complex multi-step tasks ke liye — pehle pura plan, phir execute, phir replan. Plan & Execute zyada token-efficient ho sakta hai.'],
+      ['Graph RAG kab better hota hai?', 'Jab <b>relationships</b> aur <b>multi-hop reasoning</b> chahiye (e.g. "X ke supplier ke competitor kaun"). Knowledge graph connections capture karta hai jo flat vector search miss karta hai.'],
+    ];
+    const qaGrid = document.getElementById('qaGrid');
+    qa.forEach(([q, a], i) => {
+      const card = document.createElement('div');
+      card.className = 'flip lift';
+      card.innerHTML = `
+        <div class="flip-inner">
+          <div class="flip-face card-bg border border-white/10">
+            <div class="text-xs text-cyanx font-semibold mb-2">Q${i+1} • Tap to flip</div>
+            <p class="font-bold text-lg">${q}</p>
+          </div>
+          <div class="flip-face flip-back border border-brand" style="background:linear-gradient(160deg,#1e1e3f,#2a2a55);">
+            <div class="text-xs text-successx font-semibold mb-2">Answer</div>
+            <p class="text-sm muted" style="color:#cbd5e1">${a}</p>
+          </div>
+        </div>`;
+      card.addEventListener('click', () => card.classList.toggle('flipped'));
+      qaGrid.appendChild(card);
+    });
+
+    /* ---------- CHART.JS — Distance metrics ---------- */
+    const ctx = document.getElementById('distanceChart');
+    if (ctx) {
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Cosine', 'Euclidean', 'Dot Product'],
+          datasets: [
+            { label: 'Popularity (RAG)', data: [95, 55, 70], backgroundColor: '#6366f1' },
+            { label: 'Speed', data: [80, 75, 90], backgroundColor: '#22d3ee' },
+          ],
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { labels: { color: '#94a3b8' } } },
+          scales: {
+            x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(148,163,184,.1)' } },
+            y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(148,163,184,.1)' }, beginAtZero: true, max: 100 },
+          },
+        },
+      });
+    }
+
+    /* ---------- COPY-TO-CLIPBOARD on code blocks ---------- */
+    document.querySelectorAll('.codewrap').forEach(wrap => {
+      const btn = document.createElement('button');
+      btn.textContent = 'Copy';
+      btn.className = 'copybtn px-2 py-1 rounded bg-brand text-white';
+      btn.addEventListener('click', () => {
+        const code = wrap.querySelector('code');
+        navigator.clipboard.writeText(code.innerText).then(() => {
+          btn.textContent = 'Copied!';
+          setTimeout(() => btn.textContent = 'Copy', 1500);
+        });
+      });
+      wrap.appendChild(btn);
+    });
+
+    /* ---------- MERMAID ---------- */
+    function renderMermaid() {
+      const isLight = root.classList.contains('light');
+      document.querySelectorAll('.mermaid').forEach(el => {
+        if (el.dataset.processed === 'true' && el.dataset.src) el.innerHTML = el.dataset.src;
+        if (!el.dataset.src) el.dataset.src = el.innerHTML;
+        el.removeAttribute('data-processed');
+      });
+      mermaid.initialize({ startOnLoad: false, theme: isLight ? 'default' : 'dark', securityLevel: 'loose' });
+      try { mermaid.run({ querySelector: '.mermaid' }); } catch (e) { console.warn(e); }
+    }
+    window.addEventListener('load', () => { renderMermaid(); });
+  </script>
+</body>
+</html>
